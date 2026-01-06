@@ -119,15 +119,15 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
-                name: "Nadia A",
+                name: "Anish Poudel",
                 review: "A beautiful hotel with amazing views and friendly staff!",
               },
               {
-                name: "Muku Raj",
+                name: "Sandeep M",
                 review: "Highly recommended! Relaxing mountain retreat.",
               },
               {
-                name: "Richa A",
+                name: "Ishan G",
                 review: "Excellent stay, loved the spa and pool!",
               },
             ].map((r, i) => (

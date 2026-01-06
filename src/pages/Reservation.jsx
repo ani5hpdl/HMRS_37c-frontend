@@ -29,7 +29,7 @@ const Reservation = () => {
       <section className="text-center py-16 bg-white shadow">
         <h1 className="text-5xl font-bold mb-4">Book Your Stay</h1>
         <p className="text-gray-700 max-w-2xl mx-auto">
-          Fill out the form below to make a reservation at YourHotel.
+          Fill out the form below to make a reservation at Luxe Stay.
         </p>
       </section>
 
