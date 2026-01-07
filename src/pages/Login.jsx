@@ -1,6 +1,52 @@
+import React from "react";
+import { useState } from "react"; 
+import { useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import bgImage from "../assets/background.png";
 
 const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter email and password");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // ✅ SAVE TOKEN
+      localStorage.setItem("token", data.token);
+
+      // redirect after login
+      navigate("/rooms");
+
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="w-screen min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-100 font-sans">
 
@@ -33,32 +79,55 @@ const Login = () => {
             Sign in to access your hotel dashboard
           </p>
 
-          <div className="mt-8">
-            <label className="text-sm font-semibold">Email Address</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              className="w-full mt-2 border rounded-lg p-3 focus:ring focus:ring-yellow-300"
-            />
-          </div>
+          {/* EMAIL */}
+            <div className="mt-8">
+              <label className="text-sm font-semibold">Email Address</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full mt-2 border rounded-lg p-3 focus:ring focus:ring-yellow-300"
+              />
+            </div>
 
-          <div className="mt-5">
-            <label className="text-sm font-semibold">Password</label>
-            <input
-              type="password"
-              placeholder="********"
-              className="w-full mt-2 border rounded-lg p-3 focus:ring focus:ring-yellow-300"
-            />
-          </div>
+          {/* PASSWORD */}
+            <div className="mt-5">
+              <label className="text-sm font-semibold">Password</label>
 
-          <button className="w-full mt-6 bg-yellow-500 text-white p-3 rounded-lg font-semibold hover:bg-yellow-600">
-            Sign In
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full mt-2 border rounded-lg p-3 pr-12 focus:ring focus:ring-yellow-300"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                </button>
+              </div>
+            </div>
+
+                   {/* BUTTON */}
+          <button
+            onClick={handleLogin}
+            disabled={loading}
+            className="w-full mt-6 bg-yellow-500 text-white p-3 rounded-lg font-semibold hover:bg-yellow-600 transition disabled:opacity-50"
+          >
+            {loading ? "Signing In..." : "Sign In"}
           </button>
-        </div>
-      </div>
 
-    </div>
+        </div> {/* card */}
+      </div> {/* right login */}
+    </div> 
   );
 };
+
 
 export default Login;
