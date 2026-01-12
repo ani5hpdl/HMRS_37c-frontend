@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Rooms from "./pages/Rooms";
 import Reservation from "./pages/Reservation";
 import Messages from "./pages/Messages";
+import Calender from "./pages/Calender";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/rooms"  element={<Rooms />} />
         <Route path="/reservation" element={<Reservation />} />
         <Route path="/messages" element={<Messages />} />
+        <Route path="/calender" element={<Calender/>} />
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />
       </Routes>
     </BrowserRouter>

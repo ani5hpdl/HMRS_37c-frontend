@@ -1,46 +1,257 @@
-import React from "react";
-import { Card, CardContent } from "../components/ui/Card";
-import { Button } from "../components/ui/Button";
+import React, { useEffect, useState } from "react";
+import { Search, Send, Bell, Settings } from "lucide-react";
 
-export default function Messages() {
+/* ================= TOKEN ================= */
+const USER_TOKEN = "lodgify-token-123";
+const STORAGE_KEY = `lodgify:messages:${USER_TOKEN}`;
+
+/* ================= STORAGE ================= */
+const loadData = () => {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveData = (data) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+};
+
+/* ================= COMPONENT ================= */
+const Messages = () => {
+  const [conversations, setConversations] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
+  const [search, setSearch] = useState("");
+  const [message, setMessage] = useState("");
+
+  /* ---------- Load ---------- */
+  useEffect(() => {
+    const stored = loadData();
+    if (stored.length === 0) {
+      const seed = [
+        {
+          id: "1",
+          name: "Alice Johnson",
+          unread: 1,
+          lastMessage: "Can I request a late check-out?",
+          messages: [
+            {
+              id: 1,
+              sender: "guest",
+              text: "Can I request a late check-out?",
+              time: "09:15 AM",
+            },
+          ],
+        },
+        {
+          id: "2",
+          name: "Michael Brown",
+          unread: 0,
+          lastMessage: "Is parking available?",
+          messages: [
+            {
+              id: 1,
+              sender: "guest",
+              text: "Is parking available?",
+              time: "Yesterday",
+            },
+          ],
+        },
+      ];
+      setConversations(seed);
+      saveData(seed);
+    } else {
+      setConversations(stored);
+    }
+  }, []);
+
+  /* ---------- Open chat ---------- */
+  const openChat = (chat) => {
+    const updated = conversations.map(c =>
+      c.id === chat.id ? { ...c, unread: 0 } : c
+    );
+    setConversations(updated);
+    saveData(updated);
+    setActiveChat(updated.find(c => c.id === chat.id));
+  };
+
+  /* ---------- Send message ---------- */
+  const sendMessage = () => {
+    if (!message.trim() || !activeChat) return;
+
+    const newMsg = {
+      id: Date.now(),
+      sender: "admin",
+      text: message,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    };
+
+    const updated = conversations.map(c =>
+      c.id === activeChat.id
+        ? {
+            ...c,
+            lastMessage: message,
+            messages: [...c.messages, newMsg],
+          }
+        : c
+    );
+
+    setConversations(updated);
+    saveData(updated);
+    setActiveChat(updated.find(c => c.id === activeChat.id));
+    setMessage("");
+  };
+
+  const filtered = conversations.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-      
-      {/* Chat List */}
-      <Card className="rounded-2xl shadow">
-        <CardContent className="p-4 space-y-3">
-          {["Alice Johnson", "Michael Brown", "Emily Davis"].map((name, i) => (
+    <div className="flex h-screen bg-gray-50">
+
+      {/* ================= MAIN SIDEBAR ================= */}
+      <div className="w-64 bg-white shadow-lg flex flex-col">
+        <div className="p-4 border-b flex items-center gap-2">
+          <div className="w-8 h-8 bg-lime-400 rounded flex items-center justify-center text-white font-bold">
+            L
+          </div>
+          <span className="font-bold text-xl">Lodgify</span>
+        </div>
+
+        <nav className="flex-1 p-4 space-y-2">
+          {[
+            "Dashboard",
+            "Reservation",
+            "Rooms",
+            "Messages",
+            "Housekeeping",
+            "Inventory",
+            "Calendar",
+            "Financials",
+            "Reviews",
+          ].map(item => (
             <div
-              key={i}
-              className="p-3 rounded-xl hover:bg-gray-100 cursor-pointer"
+              key={item}
+              className={`p-2 rounded cursor-pointer flex items-center gap-3 ${
+                item === "Messages"
+                  ? "bg-lime-400 font-semibold"
+                  : "hover:bg-gray-100 text-gray-600"
+              }`}
             >
-              <p className="font-medium">{name}</p>
-              <p className="text-xs text-gray-500">Last message preview...</p>
+              <span>•</span>
+              <span>{item}</span>
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </nav>
 
-      {/* Chat Window */}
-      <Card className="md:col-span-2 rounded-2xl shadow">
-        <CardContent className="p-4 flex flex-col gap-3">
-          <div className="bg-gray-100 p-3 rounded-xl w-fit text-sm">
-            Can I request late checkout?
-          </div>
+        <div className="m-4 p-4 bg-lime-100 rounded-lg">
+          <h3 className="font-bold text-sm">Elevate Hospitality Standards</h3>
+          <p className="text-xs text-gray-600 mt-1">
+            Enhanced Reporting & Marketing Tools
+          </p>
+          <button className="mt-3 w-full bg-lime-400 py-2 rounded font-semibold">
+            Update Now
+          </button>
+        </div>
+      </div>
 
-          <div className="bg-green-100 p-3 rounded-xl w-fit ml-auto text-sm text-green-800">
-            Yes, late checkout is available.
-          </div>
-
-          <div className="flex gap-2 mt-4">
+      {/* ================= MESSAGE LIST ================= */}
+      <div className="w-[360px] bg-white border-r flex flex-col">
+        <div className="p-4 border-b">
+          <h1 className="text-xl font-bold mb-3">Messages</h1>
+          <div className="flex items-center border rounded px-3 py-2">
+            <Search className="w-4 h-4 text-gray-400 mr-2" />
             <input
-              placeholder="Type a message..."
-              className="flex-1 border rounded-xl px-3 py-2 text-sm"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search name, chat, etc"
+              className="w-full outline-none text-sm"
             />
-            <Button>Send</Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <div className="flex-1 overflow-y-auto">
+          {filtered.map(chat => (
+            <div
+              key={chat.id}
+              onClick={() => openChat(chat)}
+              className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
+                activeChat?.id === chat.id ? "bg-gray-100" : ""
+              }`}
+            >
+              <div className="flex justify-between">
+                <span className="font-semibold">{chat.name}</span>
+                {chat.unread > 0 && (
+                  <span className="bg-red-500 text-white text-xs px-2 rounded-full">
+                    {chat.unread}
+                  </span>
+                )}
+              </div>
+              <div className="text-sm text-gray-500 truncate mt-1">
+                {chat.lastMessage}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ================= CHAT WINDOW ================= */}
+      <div className="flex-1 flex flex-col bg-white">
+        {!activeChat ? (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+            <div className="text-5xl mb-4">💬</div>
+            Select a conversation to start messaging
+          </div>
+        ) : (
+          <>
+            <div className="p-4 border-b flex justify-between">
+              <span className="font-semibold">{activeChat.name}</span>
+              <div className="flex gap-4">
+                <Settings className="w-5 h-5 text-gray-500" />
+                <Bell className="w-5 h-5 text-gray-500" />
+              </div>
+            </div>
+
+            <div className="flex-1 p-6 overflow-y-auto space-y-3">
+              {activeChat.messages.map(msg => (
+                <div
+                  key={msg.id}
+                  className={`max-w-md p-3 rounded-lg text-sm ${
+                    msg.sender === "admin"
+                      ? "ml-auto bg-lime-400"
+                      : "bg-gray-200"
+                  }`}
+                >
+                  {msg.text}
+                  <div className="text-xs text-gray-600 mt-1 text-right">
+                    {msg.time}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 border-t flex gap-3">
+              <input
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                className="flex-1 border rounded px-4 py-2"
+                placeholder="Type a message..."
+              />
+              <button
+                onClick={sendMessage}
+                className="bg-lime-400 p-2 rounded hover:bg-lime-500"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default Messages;
