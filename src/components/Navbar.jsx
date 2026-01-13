@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../assets/images/Luxe-logo.png";
+import BookNowButton from "../components/BookNowButton.jsx";
 
 const Navbar = () => {
   const location = useLocation();
@@ -26,12 +27,8 @@ const Navbar = () => {
             <Link to="/rooms" className="hover:text-amber-500 transition">Rooms</Link>
             <Link to="/gallery" className="hover:text-amber-500 transition">Gallery</Link>
             <Link to="/amenities" className="hover:text-amber-500 transition">Amenities</Link>
-            <Link
-              to="/reservation"
-              className="px-4 py-2 bg-amber-500 text-black rounded hover:bg-amber-600 transition"
-            >
-              Book Now
-            </Link>
+            <Link to="/contact" className="hover:text-amber-500 transition">Contact</Link>
+            <BookNowButton className="mt-4" />
           </ul>
 
         </div>
