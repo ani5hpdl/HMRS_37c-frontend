@@ -1,5 +1,11 @@
 import { Link } from "react-router-dom";
 
+import BookNowButton from "../components/BookNowButton.jsx";
+import ViewAllRoomsButton from "../components/ViewAllRoomsButton.jsx";
+import ViewFullGalleryButton from "../components/ViewFullGalleryButton.jsx";
+import ViewAllAmenitiesButton from "../components/ViewAllAmenitiesButton.jsx";
+
+
 import heroImg from "../assets/images/hotel-hero.jpg";
 import room1 from "../assets/images/room1.jpg";
 import room2 from "../assets/images/room2.jpg";
@@ -14,7 +20,7 @@ import iconGym from "../assets/images/icons/gym.svg";
 
 const Home = () => {
   return (
-    <div className="pt-28">
+    <div>
       {/* ===== Hero Section ===== */}
       <section
         id="hero"
@@ -27,12 +33,7 @@ const Home = () => {
         <p className="text-xl mb-8 text-center drop-shadow-lg">
           Luxury 5-star experience in Kathmandu, Nepal
         </p>
-        <Link
-          to="/reservation"
-          className="px-6 py-3 bg-black text-white rounded hover:bg-gray-800 transition"
-        >
-          Book Now
-        </Link>
+        <BookNowButton className="mt-4" />
       </section>
 
       {/* ===== Our Story ===== */}
@@ -57,15 +58,27 @@ const Home = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[room1, room2, room3].map((room, i) => (
-              <div key={i} className="rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform">
-                <img src={room} alt={`Room ${i + 1}`} className="w-full h-64 object-cover" />
+              <div
+                key={i}
+                className="rounded-lg overflow-hidden shadow-lg hover:scale-105 transition-transform"
+              >
+                <img
+                  src={room}
+                  alt={`Room ${i + 1}`}
+                  className="w-full h-64 object-cover"
+                />
                 <div className="p-4 text-center">
                   <h3 className="text-xl font-semibold">Deluxe Suite {i + 1}</h3>
-                  <p className="text-gray-600 mt-2">Modern amenities with Himalayan views.</p>
+                  <p className="text-gray-600 mt-2">
+                    Modern amenities with Himalayan views.
+                  </p>
                 </div>
               </div>
             ))}
           </div>
+
+          {/* View All Rooms Button */}
+          <ViewAllRoomsButton />
         </div>
       </section>
 
@@ -83,12 +96,8 @@ const Home = () => {
               </div>
             ))}
           </div>
-          <Link
-            to="/gallery"
-            className="mt-8 inline-block px-6 py-3 bg-black text-white rounded hover:bg-gray-800 transition"
-          >
-            View Full Gallery
-          </Link>
+          {/* Gallery Button */}
+          <ViewFullGalleryButton />
         </div>
       </section>
 
@@ -109,6 +118,8 @@ const Home = () => {
               </div>
             ))}
           </div>
+          {/* Amenities Button */}
+        <ViewAllAmenitiesButton />
         </div>
       </section>
 
