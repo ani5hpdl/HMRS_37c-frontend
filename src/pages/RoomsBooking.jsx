@@ -4,9 +4,9 @@ import heroImg from "../assets/images/hotel-hero.jpg";
 import room1 from "../assets/images/room1.jpg";
 import room2 from "../assets/images/room2.jpg";
 import room3 from "../assets/images/room3.jpg";
-import room4 from "../assets/images/room4.jpg";
-import room5 from "../assets/images/room5.jpg";
-import room6 from "../assets/images/room6.jpg";
+import room4 from "../assets/images/room1.jpg";
+import room5 from "../assets/images/room2.jpg";
+import room6 from "../assets/images/room3.jpg";
 
 const RoomsBooking = () => {
   const navigate = useNavigate();
