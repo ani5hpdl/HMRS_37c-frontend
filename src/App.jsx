@@ -12,6 +12,7 @@ import Calender from "./pages/Calender";
 import Review from "./pages/Review";
 import HousekeepingDashboard from "./pages/Housekeeping";
 import Inventory from "./pages/Inventory";
+import Finances from "./pages/Finances";
 
 function App() {
   return (
@@ -26,9 +27,10 @@ function App() {
         <Route path="/reservation" element={<Reservation />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/calender" element={<Calender />} />
-        <Route path="/review" element={<Review />} />
+        <Route path="/reviews" element={<Review />} />
         <Route path="/housekeeping" element={<HousekeepingDashboard />} />
         <Route path="/inventory" element={<Inventory />} />
+        <Route path="/finances" element={<Finances />} />
 
         {/* 404 */}
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />
