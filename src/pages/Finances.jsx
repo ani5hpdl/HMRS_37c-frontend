@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Home, Calendar, MessageSquare, Package, DollarSign, FileText, Star, Users, Bed, Menu, Download, Eye, ChevronLeft, ChevronRight } from 'lucide-react';
+import NavBar from '../components/NavBar';
 
 const HotelManagementSystem = () => {
   const [activeSection, setActiveSection] = useState('expenses');
@@ -371,57 +372,9 @@ const HotelManagementSystem = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r flex flex-col">
-        <div className="p-6 border-b">
-          <div className="flex items-center gap-2">
-            <Menu className="text-yellow-500" />
-            <span className="font-bold text-xl">Lodgify</span>
-          </div>
-        </div>
-        
-        <nav className="flex-1 p-4">
-          {menuItems.map((item) => (
-            <div key={item.key}>
-              <button
-                onClick={() => {
-                  if (item.key === 'financials') return;
-                  setActiveSection(item.key);
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-1 ${
-                  activeSection === item.key ? 'bg-yellow-200' : 'hover:bg-gray-100'
-                }`}
-              >
-                <item.icon size={20} />
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {item.badge}
-                  </span>
-                )}
-              </button>
-              
-              {item.submenu && (
-                <div className="ml-4">
-                  {item.submenu.map((sub) => (
-                    <button
-                      key={sub}
-                      onClick={() => setActiveSection(sub.toLowerCase())}
-                      className={`w-full text-left px-4 py-2 rounded-lg mb-1 ${
-                        activeSection === sub.toLowerCase() ? 'bg-yellow-200' : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      {sub}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </nav>
-      </div>
-
+    <>
+      <div className="flex h-screen bg-gray-50">
+      <NavBar/>
       {/* Main Content */}
       {activeSection === 'expenses' && renderExpenses()}
       {activeSection === 'invoice' && renderInvoice()}
@@ -434,6 +387,8 @@ const HotelManagementSystem = () => {
         </div>
       )}
     </div>
+    </>
+    
   );
 };
 

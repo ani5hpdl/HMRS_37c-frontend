@@ -1,5 +1,4 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import "./index.css";
 
@@ -13,10 +12,12 @@ import Review from "./pages/Review";
 import HousekeepingDashboard from "./pages/Housekeeping";
 import Inventory from "./pages/Inventory";
 import Finances from "./pages/Finances";
+import NavBar from "./components/NavBar";
 
 function App() {
   return (
-    <BrowserRouter>
+    <Router>
+      {/* <NavBar/> */}
       <Routes>
         {/* Login */}
         <Route path="/" element={<Login />} />
@@ -35,7 +36,7 @@ function App() {
         {/* 404 */}
         <Route path="*" element={<h1>404 - Page Not Found</h1>} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 

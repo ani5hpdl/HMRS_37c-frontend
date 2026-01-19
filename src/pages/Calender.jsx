@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Plus, MoreVertical, Bell, Settings, X, Save, Trash2 } from 'lucide-react';
+import NavBar from '../components/NavBar';
 
 const LodgifyCalendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -232,76 +233,8 @@ const LodgifyCalendar = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg flex flex-col">
-        <div className="p-4 border-b">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-lime-400 rounded flex items-center justify-center">
-              <span className="text-white font-bold">L</span>
-            </div>
-            <span className="font-bold text-xl">Lodgify</span>
-          </div>
-        </div>
 
-        <nav className="flex-1 p-4 overflow-y-auto">
-          <div className="space-y-2">
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>📊</span>
-              <span>Dashboard</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>📅</span>
-              <span>Reservation</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>🏠</span>
-              <span>Rooms</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer relative">
-              <span>💬</span>
-              <span>Messages</span>
-              <span className="absolute right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">1</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>🧹</span>
-              <span>Housekeeping</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>📦</span>
-              <span>Inventory</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 bg-lime-400 text-gray-800 rounded cursor-pointer">
-              <span>📅</span>
-              <span className="font-semibold">Calendar</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>💰</span>
-              <span>Financials</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>⭐</span>
-              <span>Reviews</span>
-            </div>
-            <div className="flex items-center space-x-3 p-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer">
-              <span>🤝</span>
-              <span>Concierge</span>
-            </div>
-          </div>
-        </nav>
-
-        <div className="m-4 p-4 bg-gradient-to-br from-teal-100 to-lime-100 rounded-lg">
-          <div className="mb-3 flex justify-center">
-            <div className="w-16 h-20 bg-gray-800 rounded relative">
-              <div className="absolute -right-2 -top-2 w-12 h-16 bg-lime-300 rounded"></div>
-            </div>
-          </div>
-          <h3 className="font-bold text-sm mb-1">Elevate Hospitality Standards</h3>
-          <p className="text-xs text-gray-600 mb-3">Enhanced Reporting & Marketing Tools</p>
-          <button className="w-full bg-lime-400 text-sm font-semibold py-2 rounded hover:bg-lime-500 transition-colors">
-            Update Now
-          </button>
-        </div>
-      </div>
+      <NavBar/>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">

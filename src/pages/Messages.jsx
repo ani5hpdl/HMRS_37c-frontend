@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search, Send, Bell, Settings } from "lucide-react";
+import NavBar from "../components/NavBar";
 
 /* ================= TOKEN ================= */
 const USER_TOKEN = "lodgify-token-123";
@@ -110,52 +111,7 @@ const Messages = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-
-      {/* ================= MAIN SIDEBAR ================= */}
-      <div className="w-64 bg-white shadow-lg flex flex-col">
-        <div className="p-4 border-b flex items-center gap-2">
-          <div className="w-8 h-8 bg-lime-400 rounded flex items-center justify-center text-white font-bold">
-            L
-          </div>
-          <span className="font-bold text-xl">Lodgify</span>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-2">
-          {[
-            "Dashboard",
-            "Reservation",
-            "Rooms",
-            "Messages",
-            "Housekeeping",
-            "Inventory",
-            "Calendar",
-            "Financials",
-            "Reviews",
-          ].map(item => (
-            <div
-              key={item}
-              className={`p-2 rounded cursor-pointer flex items-center gap-3 ${
-                item === "Messages"
-                  ? "bg-lime-400 font-semibold"
-                  : "hover:bg-gray-100 text-gray-600"
-              }`}
-            >
-              <span>•</span>
-              <span>{item}</span>
-            </div>
-          ))}
-        </nav>
-
-        <div className="m-4 p-4 bg-lime-100 rounded-lg">
-          <h3 className="font-bold text-sm">Elevate Hospitality Standards</h3>
-          <p className="text-xs text-gray-600 mt-1">
-            Enhanced Reporting & Marketing Tools
-          </p>
-          <button className="mt-3 w-full bg-lime-400 py-2 rounded font-semibold">
-            Update Now
-          </button>
-        </div>
-      </div>
+      <NavBar/>
 
       {/* ================= MESSAGE LIST ================= */}
       <div className="w-[360px] bg-white border-r flex flex-col">

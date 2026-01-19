@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Star, TrendingUp, Search, Filter, ChevronDown, Download, MessageSquare, Calendar, Package, Users, BarChart3, Settings, Bell, Menu, X } from 'lucide-react';
+import NavBar from '../components/NavBar';
 
 const ReviewDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -134,24 +135,7 @@ const ReviewDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'w-64' : 'w-0'} transition-all duration-300 bg-white border-r border-gray-200 overflow-hidden`}>
-        <div className="p-6">
-          <h1 className="text-2xl font-bold text-gray-800">Lodgify</h1>
-        </div>
-        
-        <nav className="mt-6">
-          <SidebarItem icon={<BarChart3 size={20} />} label="Dashboard" />
-          <SidebarItem icon={<Package size={20} />} label="Reservations" />
-          <SidebarItem icon={<Users size={20} />} label="Rooms" />
-          <SidebarItem icon={<MessageSquare size={20} />} label="Messages" badge={3} />
-          <SidebarItem icon={<Calendar size={20} />} label="Calendar" />
-          <SidebarItem icon={<Package size={20} />} label="Inventory" />
-          <SidebarItem icon={<Star size={20} />} label="Reviews" active />
-          <SidebarItem icon={<Settings size={20} />} label="Settings" />
-        </nav>
-      </div>
-
+      <NavBar/>
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Header */}

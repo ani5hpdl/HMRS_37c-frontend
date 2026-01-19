@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calendar, Users, Bed, DollarSign, Mail, Menu, Bell, Settings, Search, ChevronDown, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
+import NavBar from '../components/NavBar';
 
 const HousekeepingDashboard = () => {
   const [rooms, setRooms] = useState([
@@ -117,80 +118,7 @@ const HousekeepingDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-lime-400 rounded flex items-center justify-center">
-              <span className="text-sm font-bold">≡</span>
-            </div>
-            <span className="font-bold text-lg">Lodgify</span>
-          </div>
-        </div>
-        
-        <nav className="flex-1 p-4">
-          <div className="space-y-1">
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <Menu size={18} />
-              <span>Dashboard</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <Calendar size={18} />
-              <span>Reservation</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <Bed size={18} />
-              <span>Rooms</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3 relative">
-              <Mail size={18} />
-              <span>Messages</span>
-              <span className="absolute right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">3</span>
-            </div>
-            <div className="px-3 py-2 bg-lime-100 text-gray-900 rounded cursor-pointer flex items-center gap-3 font-medium">
-              <Users size={18} />
-              <span>Housekeeping</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <Search size={18} />
-              <span>Inventory</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <Calendar size={18} />
-              <span>Calendar</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <DollarSign size={18} />
-              <span>Financials</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <Settings size={18} />
-              <span>Reviews</span>
-            </div>
-            <div className="px-3 py-2 text-gray-600 hover:bg-gray-100 rounded cursor-pointer flex items-center gap-3">
-              <Menu size={18} />
-              <span>Concierge</span>
-            </div>
-          </div>
-        </nav>
-
-        {/* Loyalty Program Card */}
-        <div className="p-4">
-          <div className="bg-gradient-to-br from-lime-100 to-lime-200 rounded-lg p-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-20 h-20 opacity-20">
-              <img src="/api/placeholder/80/80" alt="" />
-            </div>
-            <h3 className="font-semibold mb-2">Elevate Hospitality Standards</h3>
-            <p className="text-xs text-gray-700 mb-3">
-              Efficient housekeeping leads to happier guests and a more efficient hotel operation
-            </p>
-            <button className="bg-lime-400 text-gray-900 px-4 py-1.5 rounded text-sm font-medium hover:bg-lime-500">
-              Update Now
-            </button>
-          </div>
-        </div>
-      </div>
-
+      <NavBar/>
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Header */}
