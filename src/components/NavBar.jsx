@@ -36,7 +36,7 @@ const NavBar = ({ isSidebarOpen = true, onToggleSidebar }) => {
                 <div className="w-1.5 h-1.5 bg-gray-800 rounded-sm"></div>
               </div>
             </div>
-            <span className="font-bold text-xl text-gray-800">Lodgify</span>
+            <span className="font-bold text-xl text-gray-800">LUXE STAY</span>
           </Link>
         )}
         {onToggleSidebar && (
