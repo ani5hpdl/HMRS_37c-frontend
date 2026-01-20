@@ -2,13 +2,13 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 
-import Home from "./pages/home.jsx";
-import Register from "./pages/Register";
-import Login from "./pages/Login.jsx";
+import Home from "./pages/Home.jsx";
+import Register from "./pages/Register.jsx";
 import Rooms from "./pages/Rooms.jsx";
+import RoomsBooking from "./pages/RoomsBooking.jsx";
 import Gallery from "./pages/Gallery.jsx";
-import Reservation from "./pages/Reservation.jsx";
 import Contact from "./pages/Contact.jsx";
+import Amenities from "./pages/Amenities.jsx";
 
 const App = () => {
   return (
@@ -17,10 +17,10 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/rooms" element={<Rooms />} />
+        <Route path="/rooms" element={<Rooms />} /> 
+        <Route path="/rooms-booking" element={<RoomsBooking />} />
+        <Route path="/amenities" element={<Amenities />} />
         <Route path="/gallery" element={<Gallery />} />
-        <Route path="/reservation" element={<Reservation />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
       <Footer />

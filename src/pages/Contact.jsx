@@ -1,4 +1,5 @@
 import { useState } from "react";
+import heroImg from "../assets/images/hotel-hero.jpg";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -18,17 +19,25 @@ const Contact = () => {
   };
 
   return (
-    <div className="pt-28 bg-gray-50 min-h-screen">
-      {/* ===== Header ===== */}
-      <section className="text-center py-16 bg-white shadow">
-        <h1 className="text-5xl font-bold mb-4">Contact Us</h1>
-        <p className="text-gray-700 max-w-2xl mx-auto">
-          Reach out to us for inquiries, reservations, or any questions.
-        </p>
+    <div className="bg-gray-50 min-h-screen">
+      {/* ===== Hero Section / Top Bar ===== */}
+      <section
+        className="h-80 bg-cover bg-center flex items-center justify-center text-white"
+        style={{ backgroundImage: `url(${heroImg})` }}
+      >
+        <div className="bg-black/40 p-8 rounded text-center">
+          <h1 className="text-4xl md:text-5xl font-bold drop-shadow-lg">
+            Contact Us
+          </h1>
+          <p className="mt-4 text-lg md:text-xl drop-shadow-md max-w-2xl mx-auto">
+            Reach out to us for inquiries, reservations, or any questions.
+          </p>
+        </div>
       </section>
 
-      {/* ===== Contact Info ===== */}
+      {/* ===== Contact Info & Form ===== */}
       <section className="max-w-5xl mx-auto px-6 py-16 grid md:grid-cols-2 gap-12">
+        {/* Contact Info */}
         <div className="space-y-6">
           <h2 className="text-3xl font-semibold">Get in Touch</h2>
           <p className="text-gray-700">
@@ -36,7 +45,7 @@ const Contact = () => {
           </p>
           <div className="space-y-2">
             <p><strong>Phone:</strong> +977 9802322755</p>
-            <p><strong>Email:</strong> info@yourhotel.com</p>
+            <p><strong>Email:</strong> info@luxestay.com</p>
             <p><strong>Address:</strong> Lakhuri Bhanjyang, Kathmandu, Nepal</p>
           </div>
 
@@ -48,7 +57,7 @@ const Contact = () => {
           </div>
         </div>
 
-        {/* ===== Contact Form ===== */}
+        {/* Contact Form */}
         <form
           onSubmit={handleSubmit}
           className="bg-white p-8 rounded-lg shadow-lg space-y-6"
