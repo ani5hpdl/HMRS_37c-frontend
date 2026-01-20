@@ -13,10 +13,10 @@ import room3 from "../assets/images/room3.jpg";
 import gallery1 from "../assets/images/gallery1.jpg";
 import gallery2 from "../assets/images/gallery2.jpg";
 import gallery3 from "../assets/images/gallery3.jpg";
-import iconBed from "../assets/images/icons/bed.svg";
-import iconPool from "../assets/images/icons/pool.svg";
-import iconSpa from "../assets/images/icons/spa.svg";
-import iconGym from "../assets/images/icons/gym.svg";
+import iconBed from "../assets/images/bed.jpg";
+import iconPool from "../assets/images/pool.jpg";
+import iconSpa from "../assets/images/spa.jpg";
+import iconGym from "../assets/images/gym.jpg";
 
 const Home = () => {
   return (
