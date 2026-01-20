@@ -1,133 +1,205 @@
-import React from "react";
-import { useState } from "react"; 
-import { useNavigate } from "react-router-dom";
-import { FiEye, FiEyeOff } from "react-icons/fi";
-import bgImage from "../assets/background.png";
+import React, { useState } from 'react';
+import { Lock, Mail } from 'lucide-react';
+import image from '../assets/background.png';
 
-const Login = () => {
+export default function HotelLogin() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({ email: '', password: '' });
 
-  const navigate = useNavigate();
+  const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
 
-  const handleLogin = async () => {
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
+  const handleSignIn = () => {
+    let newErrors = { email: '', password: '' };
+
+    if (!email) {
+      newErrors.email = 'Email is required';
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'Please enter a valid email';
     }
 
-    try {
-      setLoading(true);
+    if (!password) {
+      newErrors.password = 'Password is required';
+    } else if (password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
 
-      const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    setErrors(newErrors);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      // ✅ SAVE TOKEN
-      localStorage.setItem("token", data.token);
-
-      // redirect after login
-      navigate("/rooms");
-
-    } catch (error) {
-      alert(error.message);
-    } finally {
-      setLoading(false);
+    if (!newErrors.email && !newErrors.password) {
+      console.log('Login successful', { email, password });
+      alert('Login successful! Connect this to your backend API.');
     }
   };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSignIn();
+    }
+  };
+
   return (
-    <div className="w-screen min-h-screen grid grid-cols-1 md:grid-cols-2 bg-gray-100 font-sans">
+    <div className="min-h-screen flex">
+      {/* Left Side - Hero Section */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
+                <img 
+            src={image}
+            alt="Luxury Hotel Lobby"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent" />
+        
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          <div>
+            <h2 className="text-white text-sm font-semibold tracking-widest mb-8">LUXE STAY</h2>
+            
+            <div className="mt-16">
+              <h1 className="text-white text-5xl font-bold leading-tight mb-6">
+                Elevate Your<br />
+                <span className="text-amber-400">Hospitality Experience</span>
+              </h1>
+              
+              <p className="text-gray-300 text-lg max-w-md leading-relaxed">
+                Streamline operations, enhance guest satisfaction, and drive revenue with our premium hotel management platform.
+              </p>
+            </div>
+          </div>
 
-      {/* LEFT IMAGE */}
-      <div
-        className="relative bg-cover bg-center hidden md:block min-h-screen"
-        style={{ backgroundImage: `url(${bgImage})` }}
-      >
-        <div className="absolute inset-0 bg-black/40 p-16 flex flex-col justify-center text-white">
-          <h2 className="text-lg font-bold tracking-wide">LUXE STAY</h2>
-
-          <h1 className="text-4xl font-extrabold mt-4">Elevate Your</h1>
-          <h1 className="text-4xl font-extrabold text-yellow-400 mt-2">
-            Hospitality experience
-          </h1>
-
-          <p className="mt-6 max-w-md text-gray-200">
-            Streamline operations, enhance guest satisfaction, and drive
-            revenue with our premium hotel management platform.
-          </p>
+          {/* Stats Section */}
+          <div className="grid grid-cols-3 gap-8 mt-16">
+            <div className="text-center">
+              <div className="text-amber-400 text-4xl font-bold mb-2">500+</div>
+              <div className="text-gray-400 text-sm">Hotels Worldwide</div>
+            </div>
+            <div className="text-center">
+              <div className="text-amber-400 text-4xl font-bold mb-2">98%</div>
+              <div className="text-gray-400 text-sm">Satisfaction Rate</div>
+            </div>
+            <div className="text-center">
+              <div className="text-amber-400 text-4xl font-bold mb-2">24/7</div>
+              <div className="text-gray-400 text-sm">Premium Support</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* RIGHT LOGIN */}
-      <div className="flex items-center justify-center p-10 min-h-screen">
-        <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-md">
-          <h2 className="text-center text-xl font-bold">WELCOME BACK</h2>
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo */}
+          <div className="lg:hidden mb-8">
+            <h2 className="text-stone-800 text-xl font-bold tracking-widest">LUXE STAY</h2>
+          </div>
 
-          <p className="text-center text-sm text-gray-600 mt-2">
-            Sign in to access your hotel dashboard
-          </p>
-
-          {/* EMAIL */}
-            <div className="mt-8">
-              <label className="text-sm font-semibold">Email Address</label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full mt-2 border rounded-lg p-3 focus:ring focus:ring-yellow-300"
-              />
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">WELCOME BACK</h2>
+              <p className="text-gray-600">Sign in to access your hotel dashboard</p>
             </div>
 
-          {/* PASSWORD */}
-            <div className="mt-5">
-              <label className="text-sm font-semibold">Password</label>
+            <div>
+              {/* Email Field */}
+              <div className="mb-6">
+                <label className="block text-gray-900 font-semibold mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="you@example.com"
+                    className={`w-full pl-10 pr-4 py-3 border ${
+                      errors.email ? 'border-red-500' : 'border-gray-300'
+                    } rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition`}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+                )}
+              </div>
 
-              <div className="relative">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="********"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full mt-2 border rounded-lg p-3 pr-12 focus:ring focus:ring-yellow-300"
-                />
+              {/* Password Field */}
+              <div className="mb-4">
+                <label className="block text-gray-900 font-semibold mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="••••••••••"
+                    className={`w-full pl-10 pr-4 py-3 border ${
+                      errors.password ? 'border-red-500' : 'border-gray-300'
+                    } rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition`}
+                  />
+                </div>
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-500">{errors.password}</p>
+                )}
+              </div>
 
+              {/* Forgot Password Link */}
+              <div className="flex justify-end mb-6">
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  onClick={() => alert('Forgot password functionality')}
+                  className="text-amber-600 hover:text-amber-700 font-semibold text-sm transition"
                 >
-                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  Forget Password?
+                </button>
+              </div>
+
+              {/* Sign In Button */}
+              <button
+                onClick={handleSignIn}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Sign In
+              </button>
+
+              {/* Sign Up Link */}
+              <div className="mt-6 text-center">
+                <span className="text-gray-600">Don't have account? </span>
+                <button
+                  type="button"
+                  onClick={() => alert('Sign up functionality')}
+                  className="text-amber-600 hover:text-amber-700 font-semibold transition"
+                >
+                  Sign Up
                 </button>
               </div>
             </div>
 
-                   {/* BUTTON */}
-          <button
-            onClick={handleLogin}
-            disabled={loading}
-            className="w-full mt-6 bg-yellow-500 text-white p-3 rounded-lg font-semibold hover:bg-yellow-600 transition disabled:opacity-50"
-          >
-            {loading ? "Signing In..." : "Sign In"}
-          </button>
-
-        </div> {/* card */}
-      </div> {/* right login */}
-    </div> 
+            {/* Terms and Privacy */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-center text-sm text-gray-600">
+                By continuing, you agree to our{' '}
+                <button className="text-amber-600 hover:underline">
+                  Terms of Service
+                </button>{' '}
+                and{' '}
+                <button className="text-amber-600 hover:underline">
+                  Privacy Policy
+                </button>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-};
-
-
-export default Login;
+}
