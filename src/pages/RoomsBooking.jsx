@@ -1,5 +1,4 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import heroImg from "../assets/images/hotel-hero.jpg";
 import room1 from "../assets/images/room1.jpg";
 import room2 from "../assets/images/room2.jpg";
@@ -8,15 +7,18 @@ import room4 from "../assets/images/room1.jpg";
 import room5 from "../assets/images/room2.jpg";
 import room6 from "../assets/images/room3.jpg";
 
-const RoomsBooking = () => {
-  const navigate = useNavigate();
+import BookingPopup from "../components/BookingPopup.jsx";
 
+const RoomsBooking = () => {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [boardType, setBoardType] = useState("Room Only");
   const [occupancy, setOccupancy] = useState("Any");
   const [priceRange, setPriceRange] = useState(20000);
   const [selectedAmenities, setSelectedAmenities] = useState([]);
+
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState("");
 
   const rooms = [
     {
@@ -97,7 +99,8 @@ const RoomsBooking = () => {
   }, [priceRange, occupancy, selectedAmenities]);
 
   const handleBookNow = (roomName) => {
-    navigate("/reservation", { state: { roomName, checkIn, checkOut, boardType } });
+    setSelectedRoom(roomName);
+    setShowPopup(true);
   };
 
   return (
@@ -215,6 +218,11 @@ const RoomsBooking = () => {
         </aside>
 
         {/* Rooms Grid */}
+        {/* Booking Popup */}
+      <BookingPopup
+        isOpen={showPopup}
+          onClose={() => setShowPopup(false)}
+      />
         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
           {filteredRooms.map((room) => (
             <div
@@ -233,8 +241,8 @@ const RoomsBooking = () => {
                 <p className="mb-2">{room.price} NPR/night</p>
                 <p className="mb-4">Amenities: {room.amenities.join(", ")}</p>
                 <button
-                  onClick={() => handleBookNow(room.name)}
-                  className="bg-yellow-500 px-4 py-2 rounded hover:bg-yellow-600 transition"
+                onClick={() => handleBookNow(room.name)}
+                 className="bg-yellow-500 px-4 py-2 rounded hover:bg-yellow-600 transition"
                 >
                   Book Now
                 </button>
@@ -248,6 +256,14 @@ const RoomsBooking = () => {
           )}
         </div>
       </section>
+
+      {/* Booking Popup */}
+      {showPopup && (
+        <BookingPopup
+          roomName={selectedRoom}
+          onClose={() => setShowPopup(false)}
+        />
+      )}
     </div>
   );
 };

@@ -3,7 +3,7 @@ import gallery2 from "../assets/images/gallery2.jpg";
 import gallery3 from "../assets/images/gallery3.jpg";
 import gallery4 from "../assets/images/bar.jpg";
 import gallery5 from "../assets/images/gallery5.jpg";
-import gallery6 from "../assets/images/gallery6.jpg";
+import gallery6 from "../assets/images/gym.jpg";
 import heroImg from "../assets/images/hotel-hero.jpg";
 
 const images = [gallery1, gallery2, gallery3, gallery4, gallery5, gallery6];
