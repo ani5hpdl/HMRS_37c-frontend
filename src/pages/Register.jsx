@@ -2,31 +2,47 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import bgImage from "../assets/images/Background.jpg";
+import { createUserApi } from "../services/api";
 
 const Register = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name : "",
+    email : "",
+    password : ""
+  })
+
+  const changeHandler = (e) =>{
+    const{name, value} = e.target
+
+    setFormData(prev => ({
+      ...prev,
+      [name] : value
+    }))
+  }
+
+  const validator = () =>{
+    if(!formData.name || !formData.email || !formData.password){
+      alert("all fields are required")
+      return false
+    }
+    if(formData.password !== confirmPassword){
+      alert("confirm password didn't match")
+      return false
+    }
+    return true
+  }
 
   const handleRegister = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      alert("All fields are required");
-      return;
-    }
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
+
+    if(!validator()) return
     try {
       setLoading(true);
-      // Backend integration placeholder
-      alert("Registration successful");
-      navigate("/login");
+      createUserApi(formData)
     } catch (error) {
       alert(error.message);
     } finally {
@@ -64,23 +80,26 @@ const Register = () => {
             <input
               type="text"
               placeholder="Full Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              name= "name"
+              value={formData.name}
+              onChange={(e) => changeHandler(e)}
               className="w-full border rounded-lg p-3 focus:ring focus:ring-yellow-300"
             />
             <input
               type="email"
               placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              name = "email"
+              value={formData.email}
+              onChange={(e) => changeHandler(e)}
               className="w-full border rounded-lg p-3 focus:ring focus:ring-yellow-300"
             />
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name = "password"
+                value={formData.password}
+                onChange={(e) => changeHandler(e)}
                 className="w-full border rounded-lg p-3 pr-12 focus:ring focus:ring-yellow-300"
               />
               <button
