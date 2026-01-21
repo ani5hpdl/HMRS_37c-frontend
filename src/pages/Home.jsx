@@ -17,8 +17,14 @@ import iconBed from "../assets/images/bed.jpg";
 import iconPool from "../assets/images/pool.jpg";
 import iconSpa from "../assets/images/spa.jpg";
 import iconGym from "../assets/images/gym.jpg";
+import { createUserApi } from "../services/api.js";
 
 const Home = () => {
+      const registerUser = async() =>{
+        const res = await createUserApi();
+        console.log(res)
+    }
+
   return (
     <div>
       {/* ===== Hero Section ===== */}
@@ -30,6 +36,7 @@ const Home = () => {
         <h1 className="text-6xl font-bold mb-4 text-center drop-shadow-lg">
           Welcome to Luxe Stay
         </h1>
+        <button onClick={() =>registerUser()}>click fucker</button>
         <p className="text-xl mb-8 text-center drop-shadow-lg">
           Luxury 5-star experience in Kathmandu, Nepal
         </p>
