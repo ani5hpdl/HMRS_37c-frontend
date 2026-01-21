@@ -24,4 +24,4 @@ const config ={
     }
 }
 
-export const createUserApi =() => Api.post("api/user/register");
+export const createUserApi =(data) => Api.post("api/user/register", data);
