@@ -3,6 +3,9 @@ import room2 from "../assets/images/room2.jpg";
 import room3 from "../assets/images/room3.jpg";
 import heroImg from "../assets/images/hotel-hero.jpg";
 import BookNowButton from "../components/BookNowButton.jsx";
+import { useEffect, useState } from "react";
+import {toast} from 'react-hot-toast';
+import { getAllRooms } from "../services/api.js";
 
 const roomsData = [
   {
@@ -35,6 +38,26 @@ const roomsData = [
 ];
 
 const Rooms = () => {
+
+  const [allRooms,setAllRooms] = useState([]);
+
+  const fetchRooms = async() => {
+    try {
+      const response = await getAllRooms();
+      if(response.data.success){
+        setAllRooms(response.data.data);
+        return toast.success("Fetched Sucessfully");
+      }
+    } catch (error) {
+      return toast.error(error.message);
+    }
+  }
+
+  useEffect(()=>{ 
+    fetchRooms();
+    console.log(allRooms);
+  },[]);
+
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* ===== Hero Section / Top Bar ===== */}
@@ -54,27 +77,32 @@ const Rooms = () => {
 
       {/* ===== Rooms List ===== */}
       <section className="max-w-7xl mx-auto px-6 py-16 space-y-24">
-        {roomsData.map((room, index) => (
+        {allRooms.map((room, index) => (
           <div
             key={room.id}
             className={`grid grid-cols-1 lg:grid-cols-2 gap-10 items-center ${index % 2 !== 0 ? "lg:flex-row-reverse" : ""}`}
           >
             {/* Image */}
             <div className="rounded-lg overflow-hidden shadow-lg">
-              <img src={room.img} alt={room.title} className="w-full h-96 object-cover" />
+              <img src={room1} alt={room.RoomType.name} className="w-full h-96 object-cover" />
             </div>
 
             {/* Details */}
             <div className="space-y-6">
-              <h2 className="text-4xl font-bold">{room.title}</h2>
-              <p className="text-xl text-amber-500 font-semibold">{room.price.toLocaleString("en-NP")} NPR / night</p>
-              <p className="text-gray-800 text-lg">{room.description}</p>
+              <h2 className="text-4xl font-bold">{room.RoomType.name}</h2>
+              <p className="text-xl text-amber-500 font-semibold">{room.RoomType.pricePerNight.toLocaleString("en-NP")} NPR / night</p>
+              <p className="text-gray-800 text-lg">{room.RoomType.description}</p>
 
               {/* Amenity List */}
               <ul className="grid grid-cols-2 gap-2 text-gray-700 list-disc pl-5">
-                {room.amenities.map((amenity) => (
-                  <li key={amenity}>{amenity}</li>
-                ))}
+                {room.RoomType?.RoomAmenity &&
+                  Object.entries(room.RoomType.RoomAmenity)
+                    .filter(([key, value]) => value === true)
+                    .map(([key]) => (
+                      <li key={key}>
+                        {key.replace(/([A-Z])/g, " $1")}
+                      </li>
+                    ))}
               </ul>
 
               {/* Book Now */}
