@@ -13,10 +13,12 @@ import HousekeepingDashboard from "./pages/Housekeeping";
 import Inventory from "./pages/Inventory";
 import Finances from "./pages/Finances";
 import NavBar from "./components/NavBar";
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   return (
     <Router>
+      <Toaster />
       {/* <NavBar/> */}
       <Routes>
         {/* Login */}

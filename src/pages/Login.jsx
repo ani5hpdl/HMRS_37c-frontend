@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Lock, Mail } from 'lucide-react';
 import image from '../assets/background.png';
+import { toast } from 'react-hot-toast';
+import { login } from '../services/api';
+import {jwtDecode} from 'jwt-decode';
+// import { useNavigate } from 'react-router-dom';
 
 export default function HotelLogin() {
   const [email, setEmail] = useState('');
@@ -13,7 +17,7 @@ export default function HotelLogin() {
     return re.test(email);
   };
 
-  const handleSignIn = () => {
+  const validators = () => {
     let newErrors = { email: '', password: '' };
 
     if (!email) {
@@ -31,16 +35,39 @@ export default function HotelLogin() {
     setErrors(newErrors);
 
     if (!newErrors.email && !newErrors.password) {
-      console.log('Login successful', { email, password });
-      alert('Login successful! Connect this to your backend API.');
+      return true;
     }
+    return false;
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSignIn();
+  const handleSubmit = async() => {
+    try {
+      if(validators()){
+        const dataToSubmit = {
+          email,
+          password
+        }
+        const response = await login(dataToSubmit);
+        if (response.status === 200) {
+          toast.success("Login Successful!");
+          localStorage.setItem("token", response?.data?.token)
+
+          let decoded;
+            try {
+              decoded = jwtDecode(response?.data?.token);
+            } catch (error) {
+              return toast.error("Invalid token")
+            }
+
+            navigate(decoded.role === 'admin' ? '/admindash' : '/userdash');
+        } else {
+          return toast.error(response?.data?.message || "Login Failed! Please try again.");
+        }
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "An error occurred during login.");
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -115,7 +142,6 @@ export default function HotelLogin() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    onKeyPress={handleKeyPress}
                     placeholder="you@example.com"
                     className={`w-full pl-10 pr-4 py-3 border ${
                       errors.email ? 'border-red-500' : 'border-gray-300'
@@ -140,7 +166,6 @@ export default function HotelLogin() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    onKeyPress={handleKeyPress}
                     placeholder="••••••••••"
                     className={`w-full pl-10 pr-4 py-3 border ${
                       errors.password ? 'border-red-500' : 'border-gray-300'
@@ -165,7 +190,7 @@ export default function HotelLogin() {
 
               {/* Sign In Button */}
               <button
-                onClick={handleSignIn}
+                onClick={()=>{handleSubmit()}}
                 className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 Sign In
