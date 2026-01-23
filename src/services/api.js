@@ -41,3 +41,11 @@ export const createRoomType = (data) => Api.post('/api/room-types/createRoomType
 export const updateRoomType = (id,data) => Api.put(`/api/room-types/updateRoomType/${id}`,data,config);
 
 export const deleteRoomType = (id) => Api.delete(`/api/room-types/delete/${id}`,config);
+
+export const getAmenities = () => Api.get('/api/room-amenities/getAllAmenities',config);
+
+export const createAmenity = (data) => Api.post('/api/room-amenities/createAmenity',data,config);
+
+export const updateAmenity = (id,data) => Api.put(`/api/room-amenities/updateAmenity/${id}`,data,config);
+
+export const deleteAmenity = (id) => Api.delete(`/api/room-amenities/delete/${id}`,config);

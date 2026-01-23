@@ -1,10 +1,11 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Home, Calendar, MessageSquare, Package, DollarSign, Star, Users, Menu, Search, ChevronDown, Bed, User, Wifi, Tv, Coffee, Wind, Lock, Droplets, Bath, Sun, Clock, Cookie, X, Plus } from 'lucide-react';
 import NavBar from '../components/NavBar';
 import { getRooms } from '../services/api';
 import AddRoomModal from '../components/AddRoom';
 import EditRoomModal from '../components/EditRoom'; // Adjust path as needed
+import { ROOM_TYPE_IMAGES } from '../components/ui/roomType';
 
 const HotelManagementSystem = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -20,6 +21,7 @@ const HotelManagementSystem = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
   const [newRoom, setNewRoom] = useState({
     name: '',
     size: '',
@@ -31,127 +33,49 @@ const HotelManagementSystem = () => {
     description: ''
   });
 
-  const fetchRooms = async () => {
+ const fetchRooms = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await getRooms();
-      
-      // DETAILED LOGGING - Check your browser console
-      console.log('=== API RESPONSE DEBUG ===');
-      console.log('Full Response Object:', response);
-      console.log('Response.data:', response.data);
-      console.log('Response.data type:', typeof response.data);
-      console.log('Is response.data an array?', Array.isArray(response.data));
-      
-      if (response.data && typeof response.data === 'object') {
-        console.log('Response.data keys:', Object.keys(response.data));
-        console.log('Response.data.data:', response.data.data);
-        
-        // Log first item structure if it exists
-        if (response.data.data && response.data.data[0]) {
-          console.log('First room item structure:', response.data.data[0]);
-          console.log('First room keys:', Object.keys(response.data.data[0]));
-        } else if (Array.isArray(response.data) && response.data[0]) {
-          console.log('First room item structure:', response.data[0]);
-          console.log('First room keys:', Object.keys(response.data[0]));
-        }
-      }
-      
-      // Handle different possible response structures
-      let roomsData = [];
-      
-      if (response.data) {
-        // Check if data is nested in response.data.data
-        if (response.data.data && Array.isArray(response.data.data)) {
-          roomsData = response.data.data;
-          console.log('Using response.data.data - Found', roomsData.length, 'rooms');
-        }
-        // Check if data is directly in response.data
-        else if (Array.isArray(response.data)) {
-          roomsData = response.data;
-          console.log('Using response.data directly - Found', roomsData.length, 'rooms');
-        }
-        // Check if rooms are in a 'rooms' property
-        else if (response.data.rooms && Array.isArray(response.data.rooms)) {
-          roomsData = response.data.rooms;
-          console.log('Using response.data.rooms - Found', roomsData.length, 'rooms');
-        }
-      }
-      
-      console.log('Rooms data to transform:', roomsData);
-      
-      // Transform backend data to match frontend structure
-      const transformedRooms = roomsData.map((room, index) => {
-        console.log(`Transforming room ${index}:`, room);
-        
-        // Extract RoomType data
+
+      const roomsData = response?.data?.data || [];
+
+      const transformedRooms = roomsData.map(room => {
         const roomType = room.RoomType || {};
-        const amenities = roomType.RoomAmenity || {};
-        
-        // Build features array based on amenities
-        const features = [];
-        if (amenities.hasBalcony) features.push('Private balcony with ' + (roomType.viewType || 'city') + ' view');
-        if (amenities.hasWorkDesk) features.push('Work desk with ergonomic chair');
-        features.push('Spacious layout with modern design');
-        if (roomType.viewType) features.push(`Beautiful ${roomType.viewType} views`);
-        
-        // Build facilities array based on amenities
-        const facilities = [];
-        if (amenities.wifi) facilities.push('High-speed Wi-Fi');
-        if (amenities.flatScreenTV) facilities.push('Flat-screen TV');
-        if (amenities.airConditioning) facilities.push('Air conditioning');
-        if (amenities.miniFridge) facilities.push('Mini-fridge');
-        if (amenities.coffeeTeaMaker) facilities.push('Coffee/tea maker');
-        
-        // Build amenities list
-        const amenitiesList = [];
-        amenitiesList.push('Complimentary bottled water');
-        if (amenities.coffeeTeaMaker) amenitiesList.push('Coffee and tea making facilities');
-        amenitiesList.push('Premium bedding and linens');
-        if (amenities.ensuiteBathroom) amenitiesList.push('Ensuite bathroom with shower' + (amenities.bathtub ? ' and bathtub' : ''));
-        amenitiesList.push('Luxury toiletries');
-        amenitiesList.push('Hairdryer');
-        amenitiesList.push('Bathrobe and slippers');
-        amenitiesList.push('24-hour room service');
-        
+        const image =
+          ROOM_TYPE_IMAGES[roomType.name] || ROOM_TYPE_IMAGES.default;
+
         return {
           id: room.id,
-          name: roomType.name || 'Unknown',
-          size: parseInt(roomType.roomSize) || 30,
-          bedType: roomType.bedType || 'Queen Bed',
-          guests: parseInt(room.maxGuests) || 2,
-          price: parseFloat(roomType.pricePerNight) || 0,
-          status: room.isActive ? 'Available' : 'Unavailable',
-          availability: {
-            occupied: 0, // You'll need to get this from your backend
-            total: 1 // You'll need to get this from your backend
-          },
-          description: roomType.description || `Comfortable ${roomType.name || 'room'} with modern amenities.`,
-          image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-          gallery: [
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-            'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop',
-            'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=250&fit=crop',
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=250&fit=crop'
+          name: roomType.name || "Unknown",
+          size: Number(roomType.roomSize) || 30,
+          bedType: roomType.bedType || "Queen Bed",
+          guests: Number(room.maxGuests) || 2,
+          price: Number(roomType.pricePerNight) || 0,
+          status: room.isActive ? "Available" : "Occupied",
+          availability: { occupied: 0, total: 1 },
+          description:
+            roomType.description ||
+            `Comfortable ${roomType.name || "room"} with modern amenities.`,
+          image,
+          gallery: [image, image, image, image],
+          features: [
+            "Spacious layout with modern design",
+            "Work desk with ergonomic chair",
+            "Premium bedding and linens"
           ],
-          features: features.length > 0 ? features : ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with modern design'],
-          facilities: facilities.length > 0 ? facilities : ['High-speed Wi-Fi', 'Flat-screen TV', 'Air conditioning'],
-          amenities: amenitiesList
+          amenities: [
+            "Complimentary bottled water",
+            "Luxury toiletries",
+            "Hairdryer",
+            "24-hour room service"
+          ]
         };
       });
-      
-      console.log('=== TRANSFORMATION COMPLETE ===');
-      console.log('Transformed rooms count:', transformedRooms.length);
-      console.log('Transformed rooms:', transformedRooms);
-      
+
       setRooms(transformedRooms);
-    } catch (error) {
-      console.error('=== ERROR FETCHING ROOMS ===');
-      console.error('Error:', error);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      setError('Failed to load rooms. Please try again.');
+    } catch (err) {
+      setError("Failed to load rooms");
     } finally {
       setLoading(false);
     }
@@ -161,79 +85,45 @@ const HotelManagementSystem = () => {
     fetchRooms();
   }, []);
 
+  const filteredRooms = useMemo(() => {
+    let data = [...rooms];
 
+    // 🔍 Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      data = data.filter(room =>
+        room.name.toLowerCase().includes(q) ||
+        room.bedType.toLowerCase().includes(q) ||
+        room.description.toLowerCase().includes(q)
+      );
+    }
 
-  const menuItems = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard' },
-    { id: 'reservation', icon: Calendar, label: 'Reservation' },
-    { id: 'rooms', icon: Bed, label: 'Rooms' },
-    { id: 'messages', icon: MessageSquare, label: 'Messages', badge: 3 },
-    { id: 'housekeeping', icon: Package, label: 'Housekeeping' },
-    { id: 'inventory', icon: Package, label: 'Inventory' },
-    { id: 'calendar', icon: Calendar, label: 'Calendar' },
-    { id: 'financials', icon: DollarSign, label: 'Financials' },
-    { id: 'reviews', icon: Star, label: 'Reviews' },
-    { id: 'concierge', icon: Users, label: 'Concierge' }
-  ];
+    // 🎯 Filter
+    if (filterType !== "all") {
+      data = data.filter(room =>
+        filterType === "available"
+          ? room.status === "Available"
+          : room.status === "Occupied"
+      );
+    }
 
-  // const filteredRooms = rooms.filter(room => {
-  //   const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //                        room.bedType.toLowerCase().includes(searchQuery.toLowerCase());
-  //   const matchesFilter = filterType === 'all' || 
-  //                        (filterType === 'available' && room.status === 'Available') ||
-  //                        (filterType === 'occupied' && room.status === 'Occupied');
-  //   return matchesSearch && matchesFilter;
-  // });
+    // ↕️ Sort
+    switch (sortBy) {
+      case "price-low":
+        data.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        data.sort((a, b) => b.price - a.price);
+        break;
+      case "size":
+        data.sort((a, b) => b.size - a.size);
+        break;
+      default:
+        break;
+    }
 
-  // const sortedRooms = [...filteredRooms].sort((a, b) => {
-  //   if (sortBy === 'popular') return 0;
-  //   if (sortBy === 'price-low') return a.price - b.price;
-  //   if (sortBy === 'price-high') return b.price - a.price;
-  //   if (sortBy === 'size') return b.size - a.size;
-  //   return 0;
-  // });
-
-  // const handleAddRoom = () => {
-  //   if (!newRoom.name || !newRoom.size || !newRoom.bedType || !newRoom.guests || !newRoom.price || !newRoom.totalRooms) {
-  //     alert('Please fill in all required fields');
-  //     return;
-  //   }
-
-  //   const room = {
-  //     id: rooms.length + 1,
-  //     name: newRoom.name,
-  //     size: parseInt(newRoom.size),
-  //     bedType: newRoom.bedType,
-  //     guests: parseInt(newRoom.guests),
-  //     price: parseInt(newRoom.price),
-  //     status: newRoom.status,
-  //     availability: { occupied: 0, total: parseInt(newRoom.totalRooms) },
-  //     description: newRoom.description || `Comfortable ${newRoom.name} room with ${newRoom.bedType}.`,
-  //     image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-  //     gallery: [
-  //       'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-  //       'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop',
-  //       'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=250&fit=crop',
-  //       'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=250&fit=crop'
-  //     ],
-  //     features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
-  //     facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
-  //     amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
-  //   };
-
-  //   setRooms([...rooms, room]);
-  //   setShowAddRoomModal(false);
-  //   setNewRoom({
-  //     name: '',
-  //     size: '',
-  //     bedType: '',
-  //     guests: '',
-  //     price: '',
-  //     status: 'Available',
-  //     totalRooms: '',
-  //     description: ''
-  //   });
-  // };
+    return data;
+  }, [rooms, searchQuery, filterType, sortBy]);
 
   if (loading) {
     return (
@@ -308,113 +198,86 @@ const HotelManagementSystem = () => {
             
             {/* Search and Filters */}
             <div className="flex gap-3 mb-6">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search room type, number, etc..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent text-sm"
-                />
-              </div>
-              
-              <div className="flex gap-2">
-                <div className="relative">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none px-4 py-2.5 pr-10 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 cursor-pointer text-sm text-gray-700"
-                  >
-                    <option value="popular">Popular</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="size">Size</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" size={16} />
-                </div>
-                
-                <div className="relative">
-                  <select
-                    value={filterType}
-                    onChange={(e) => setFilterType(e.target.value)}
-                    className="appearance-none px-4 py-2.5 pr-10 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 cursor-pointer text-sm text-gray-700"
-                  >
-                    <option value="all">All Type</option>
-                    <option value="available">Available</option>
-                    <option value="occupied">Occupied</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500" size={16} />
-                </div>
-                
-                <button 
-                  onClick={() => setShowModal(true)}
-                  className="px-5 py-2.5 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors text-sm text-gray-800 flex items-center gap-2"
-                >
-                  <Plus size={18} />
-                  Add Room
-                </button>
-              </div>
-            </div>
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-3 text-gray-400" size={16} />
+            <input
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search rooms..."
+              className="w-full pl-10 py-2 border rounded-lg"
+            />
+          </div>
+
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            className="border px-4 rounded-lg"
+          >
+            <option value="popular">Popular</option>
+            <option value="price-low">Price: Low → High</option>
+            <option value="price-high">Price: High → Low</option>
+            <option value="size">Size</option>
+          </select>
+
+          <select
+            value={filterType}
+            onChange={e => setFilterType(e.target.value)}
+            className="border px-4 rounded-lg"
+          >
+            <option value="all">All</option>
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+          </select>
+        </div>
 
             {/* Room Cards */}
             <div className="space-y-4">
-              {rooms.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-xl">
-                  <Bed size={48} className="mx-auto text-gray-300 mb-4" />
-                  <p className="text-gray-500">No rooms found</p>
-                </div>
-              ) : (
-                rooms.map(room => (
-                  <div
-                    key={room.id}
-                    onClick={() => setSelectedRoom(room)}
-                    className="bg-white rounded-xl p-4 flex gap-4 cursor-pointer hover:shadow-lg transition-all border border-gray-200"
-                  >
-                    <img src={room.image} alt={room.name} className="w-32 h-28 object-cover rounded-lg" />
-                    
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-800">{room.name}</h3>
-                          <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                            <span className="flex items-center gap-1">
-                              <Home size={13} /> {room.size} m²
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Bed size={13} /> {room.bedType}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <User size={13} /> {room.guests} guests
-                            </span>
-                          </div>
-                        </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          room.status === 'Available' 
-                            ? 'bg-teal-50 text-teal-700' 
-                            : 'bg-yellow-50 text-yellow-700'
-                        }`}>
-                          {room.status}
-                        </span>
-                      </div>
-                      
-                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{room.description}</p>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500">
-                          Availability: <span className="font-semibold text-gray-700">{room.availability.occupied}/{room.availability.total} Rooms</span>
-                        </span>
-                        <div className="text-right">
-                          <span className="text-2xl font-bold text-gray-800">${room.price}</span>
-                          <span className="text-gray-500 text-xs">/night</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
+          {filteredRooms.length === 0 ? (
+            <div className="text-center text-gray-500 py-20">
+              No rooms found
             </div>
-          </div>
+          ) : (
+            filteredRooms.map(room => (
+              <div
+                key={room.id}
+                onClick={() => setSelectedRoom(room)}
+                className="bg-white p-4 rounded-xl flex gap-4 cursor-pointer hover:shadow"
+              >
+                <img
+                  src={room.image}
+                  alt={room.name}
+                  className="w-32 h-24 rounded-lg object-cover"
+                />
+
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <h3 className="font-bold">{room.name}</h3>
+                    <span
+                      className={`text-xs px-3 py-1 rounded-full ${
+                        room.status === "Available"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {room.status}
+                    </span>
+                  </div>
+
+                  <div className="text-xs text-gray-500 flex gap-4 mt-1">
+                    <span><Home size={12} /> {room.size} m²</span>
+                    <span><Bed size={12} /> {room.bedType}</span>
+                    <span><User size={12} /> {room.guests}</span>
+                  </div>
+
+                  <div className="mt-3 font-semibold">
+                    ${room.price} / night
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
 
           {/* Room Detail Sidebar */}
           {selectedRoom && (

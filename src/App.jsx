@@ -14,6 +14,7 @@ import Inventory from "./pages/Inventory";
 import Finances from "./pages/Finances";
 import NavBar from "./components/NavBar";
 import { Toaster } from 'react-hot-toast';
+import RoomTypes from './pages/RoomTypes';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         {/* Main Pages */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/rooms" element={<Rooms />} />
+        <Route path="/rooms-types" element={<RoomTypes />} />
         <Route path="/reservation" element={<Reservation />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/calender" element={<Calender />} />
