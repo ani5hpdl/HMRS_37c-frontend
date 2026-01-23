@@ -4,13 +4,14 @@ import image from '../assets/background.png';
 import { toast } from 'react-hot-toast';
 import { login } from '../services/api';
 import {jwtDecode} from 'jwt-decode';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function HotelLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -59,12 +60,13 @@ export default function HotelLogin() {
               return toast.error("Invalid token")
             }
 
-            navigate(decoded.role === 'admin' ? '/admindash' : '/userdash');
+            navigate(decoded.role === 'admin' ? '/rooms' : '/');
         } else {
           return toast.error(response?.data?.message || "Login Failed! Please try again.");
         }
       }
     } catch (error) {
+      console.log("Login Error: ", error);
       toast.error(error?.response?.data?.message || "An error occurred during login.");
     }
   }

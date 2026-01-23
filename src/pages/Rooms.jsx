@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+
+import React, { useEffect, useState } from 'react';
 import { Home, Calendar, MessageSquare, Package, DollarSign, Star, Users, Menu, Search, ChevronDown, Bed, User, Wifi, Tv, Coffee, Wind, Lock, Droplets, Bath, Sun, Clock, Cookie, X, Plus } from 'lucide-react';
 import NavBar from '../components/NavBar';
+import { getRooms } from '../services/api';
+import AddRoomModal from '../components/AddRoom';
+import EditRoomModal from '../components/EditRoom'; // Adjust path as needed
 
 const HotelManagementSystem = () => {
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -9,115 +13,12 @@ const HotelManagementSystem = () => {
   const [filterType, setFilterType] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [showAddRoomModal, setShowAddRoomModal] = useState(false);
-  const [showImageGallery, setShowImageGallery] = useState(false);
-  const [rooms, setRooms] = useState([
-    {
-      id: 1,
-      name: 'Standard',
-      size: 25,
-      bedType: 'Queen Bed',
-      guests: 2,
-      price: 100,
-      status: 'Occupied',
-      availability: { occupied: 22, total: 30 },
-      description: 'Comfortable, affordable stay for solo travelers or couples. Queen bed, en-suite bathroom, work desk, essential amenities.',
-      image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-      gallery: [
-        'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=250&fit=crop'
-      ],
-      features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
-      facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
-      amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
-    },
-    {
-      id: 2,
-      name: 'Deluxe',
-      size: 35,
-      bedType: 'King Bed',
-      guests: 2,
-      price: 150,
-      status: 'Available',
-      availability: { occupied: 18, total: 25 },
-      description: 'More space and luxury. King bed, separate seating, larger desk, 55-inch TV, En-suite bathroom with bathtub and shower.',
-      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=250&fit=crop',
-      gallery: [
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop'
-      ],
-      features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
-      facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
-      amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
-    },
-    {
-      id: 3,
-      name: 'Suite',
-      size: 50,
-      bedType: 'King Bed',
-      guests: 3,
-      price: 250,
-      status: 'Available',
-      availability: { occupied: 8, total: 10 },
-      description: 'Spacious and private with separate living and sleeping areas. King bed, furnished living room, kitchenette - ideal for extended stays.',
-      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=250&fit=crop',
-      gallery: [
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop'
-      ],
-      features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
-      facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
-      amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
-    },
-    {
-      id: 4,
-      name: 'Family',
-      size: 45,
-      bedType: '2 Queen Beds',
-      guests: 4,
-      price: 200,
-      status: 'Occupied',
-      availability: { occupied: 12, total: 15 },
-      description: 'Designed for comfort and practicality. Two queen beds, bunk beds accommodate up to 4 guests. En-suite bathroom, seating area, 50-inch TV.',
-      image: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=250&fit=crop',
-      gallery: [
-        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop'
-      ],
-      features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
-      facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
-      amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
-    },
-    {
-      id: 5,
-      name: 'Single',
-      size: 20,
-      bedType: 'Single Bed',
-      guests: 1,
-      price: 70,
-      status: 'Available',
-      availability: { occupied: 17, total: 20 },
-      description: 'Features a single bed, en-suite bathroom, work desk, and essential amenities for a practical and functional stay.',
-      image: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop',
-      gallery: [
-        'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=250&fit=crop'
-      ],
-      features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
-      facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
-      amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
-    }
-  ]);
+  const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [roomToEdit, setRoomToEdit] = useState(null);
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [newRoom, setNewRoom] = useState({
     name: '',
@@ -129,6 +30,138 @@ const HotelManagementSystem = () => {
     totalRooms: '',
     description: ''
   });
+
+  const fetchRooms = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getRooms();
+      
+      // DETAILED LOGGING - Check your browser console
+      console.log('=== API RESPONSE DEBUG ===');
+      console.log('Full Response Object:', response);
+      console.log('Response.data:', response.data);
+      console.log('Response.data type:', typeof response.data);
+      console.log('Is response.data an array?', Array.isArray(response.data));
+      
+      if (response.data && typeof response.data === 'object') {
+        console.log('Response.data keys:', Object.keys(response.data));
+        console.log('Response.data.data:', response.data.data);
+        
+        // Log first item structure if it exists
+        if (response.data.data && response.data.data[0]) {
+          console.log('First room item structure:', response.data.data[0]);
+          console.log('First room keys:', Object.keys(response.data.data[0]));
+        } else if (Array.isArray(response.data) && response.data[0]) {
+          console.log('First room item structure:', response.data[0]);
+          console.log('First room keys:', Object.keys(response.data[0]));
+        }
+      }
+      
+      // Handle different possible response structures
+      let roomsData = [];
+      
+      if (response.data) {
+        // Check if data is nested in response.data.data
+        if (response.data.data && Array.isArray(response.data.data)) {
+          roomsData = response.data.data;
+          console.log('Using response.data.data - Found', roomsData.length, 'rooms');
+        }
+        // Check if data is directly in response.data
+        else if (Array.isArray(response.data)) {
+          roomsData = response.data;
+          console.log('Using response.data directly - Found', roomsData.length, 'rooms');
+        }
+        // Check if rooms are in a 'rooms' property
+        else if (response.data.rooms && Array.isArray(response.data.rooms)) {
+          roomsData = response.data.rooms;
+          console.log('Using response.data.rooms - Found', roomsData.length, 'rooms');
+        }
+      }
+      
+      console.log('Rooms data to transform:', roomsData);
+      
+      // Transform backend data to match frontend structure
+      const transformedRooms = roomsData.map((room, index) => {
+        console.log(`Transforming room ${index}:`, room);
+        
+        // Extract RoomType data
+        const roomType = room.RoomType || {};
+        const amenities = roomType.RoomAmenity || {};
+        
+        // Build features array based on amenities
+        const features = [];
+        if (amenities.hasBalcony) features.push('Private balcony with ' + (roomType.viewType || 'city') + ' view');
+        if (amenities.hasWorkDesk) features.push('Work desk with ergonomic chair');
+        features.push('Spacious layout with modern design');
+        if (roomType.viewType) features.push(`Beautiful ${roomType.viewType} views`);
+        
+        // Build facilities array based on amenities
+        const facilities = [];
+        if (amenities.wifi) facilities.push('High-speed Wi-Fi');
+        if (amenities.flatScreenTV) facilities.push('Flat-screen TV');
+        if (amenities.airConditioning) facilities.push('Air conditioning');
+        if (amenities.miniFridge) facilities.push('Mini-fridge');
+        if (amenities.coffeeTeaMaker) facilities.push('Coffee/tea maker');
+        
+        // Build amenities list
+        const amenitiesList = [];
+        amenitiesList.push('Complimentary bottled water');
+        if (amenities.coffeeTeaMaker) amenitiesList.push('Coffee and tea making facilities');
+        amenitiesList.push('Premium bedding and linens');
+        if (amenities.ensuiteBathroom) amenitiesList.push('Ensuite bathroom with shower' + (amenities.bathtub ? ' and bathtub' : ''));
+        amenitiesList.push('Luxury toiletries');
+        amenitiesList.push('Hairdryer');
+        amenitiesList.push('Bathrobe and slippers');
+        amenitiesList.push('24-hour room service');
+        
+        return {
+          id: room.id,
+          name: roomType.name || 'Unknown',
+          size: parseInt(roomType.roomSize) || 30,
+          bedType: roomType.bedType || 'Queen Bed',
+          guests: parseInt(room.maxGuests) || 2,
+          price: parseFloat(roomType.pricePerNight) || 0,
+          status: room.isActive ? 'Available' : 'Unavailable',
+          availability: {
+            occupied: 0, // You'll need to get this from your backend
+            total: 1 // You'll need to get this from your backend
+          },
+          description: roomType.description || `Comfortable ${roomType.name || 'room'} with modern amenities.`,
+          image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
+          gallery: [
+            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
+            'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop',
+            'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=250&fit=crop',
+            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=250&fit=crop'
+          ],
+          features: features.length > 0 ? features : ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with modern design'],
+          facilities: facilities.length > 0 ? facilities : ['High-speed Wi-Fi', 'Flat-screen TV', 'Air conditioning'],
+          amenities: amenitiesList
+        };
+      });
+      
+      console.log('=== TRANSFORMATION COMPLETE ===');
+      console.log('Transformed rooms count:', transformedRooms.length);
+      console.log('Transformed rooms:', transformedRooms);
+      
+      setRooms(transformedRooms);
+    } catch (error) {
+      console.error('=== ERROR FETCHING ROOMS ===');
+      console.error('Error:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      setError('Failed to load rooms. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+
+
 
   const menuItems = [
     { id: 'dashboard', icon: Home, label: 'Dashboard' },
@@ -143,64 +176,98 @@ const HotelManagementSystem = () => {
     { id: 'concierge', icon: Users, label: 'Concierge' }
   ];
 
-  const filteredRooms = rooms.filter(room => {
-    const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         room.bedType.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterType === 'all' || 
-                         (filterType === 'available' && room.status === 'Available') ||
-                         (filterType === 'occupied' && room.status === 'Occupied');
-    return matchesSearch && matchesFilter;
-  });
+  // const filteredRooms = rooms.filter(room => {
+  //   const matchesSearch = room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //                        room.bedType.toLowerCase().includes(searchQuery.toLowerCase());
+  //   const matchesFilter = filterType === 'all' || 
+  //                        (filterType === 'available' && room.status === 'Available') ||
+  //                        (filterType === 'occupied' && room.status === 'Occupied');
+  //   return matchesSearch && matchesFilter;
+  // });
 
-  const sortedRooms = [...filteredRooms].sort((a, b) => {
-    if (sortBy === 'popular') return 0;
-    if (sortBy === 'price-low') return a.price - b.price;
-    if (sortBy === 'price-high') return b.price - a.price;
-    if (sortBy === 'size') return b.size - a.size;
-    return 0;
-  });
+  // const sortedRooms = [...filteredRooms].sort((a, b) => {
+  //   if (sortBy === 'popular') return 0;
+  //   if (sortBy === 'price-low') return a.price - b.price;
+  //   if (sortBy === 'price-high') return b.price - a.price;
+  //   if (sortBy === 'size') return b.size - a.size;
+  //   return 0;
+  // });
 
-  const handleAddRoom = () => {
-    if (!newRoom.name || !newRoom.size || !newRoom.bedType || !newRoom.guests || !newRoom.price || !newRoom.totalRooms) {
-      alert('Please fill in all required fields');
-      return;
-    }
+  // const handleAddRoom = () => {
+  //   if (!newRoom.name || !newRoom.size || !newRoom.bedType || !newRoom.guests || !newRoom.price || !newRoom.totalRooms) {
+  //     alert('Please fill in all required fields');
+  //     return;
+  //   }
 
-    const room = {
-      id: rooms.length + 1,
-      name: newRoom.name,
-      size: parseInt(newRoom.size),
-      bedType: newRoom.bedType,
-      guests: parseInt(newRoom.guests),
-      price: parseInt(newRoom.price),
-      status: newRoom.status,
-      availability: { occupied: 0, total: parseInt(newRoom.totalRooms) },
-      description: newRoom.description || `Comfortable ${newRoom.name} room with ${newRoom.bedType}.`,
-      image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-      gallery: [
-        'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=250&fit=crop',
-        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=250&fit=crop'
-      ],
-      features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
-      facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
-      amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
-    };
+  //   const room = {
+  //     id: rooms.length + 1,
+  //     name: newRoom.name,
+  //     size: parseInt(newRoom.size),
+  //     bedType: newRoom.bedType,
+  //     guests: parseInt(newRoom.guests),
+  //     price: parseInt(newRoom.price),
+  //     status: newRoom.status,
+  //     availability: { occupied: 0, total: parseInt(newRoom.totalRooms) },
+  //     description: newRoom.description || `Comfortable ${newRoom.name} room with ${newRoom.bedType}.`,
+  //     image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
+  //     gallery: [
+  //       'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=250&fit=crop',
+  //       'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=250&fit=crop',
+  //       'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=250&fit=crop',
+  //       'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=250&fit=crop'
+  //     ],
+  //     features: ['Private balcony (where applicable)', 'Work desk with ergonomic chair', 'Spacious layout with a modern design', 'Large windows offering city or garden views'],
+  //     facilities: ['High-speed Wi-Fi', 'Flat-screen TV', 'In-room safe', 'Air conditioning', 'Mini-fridge', 'Coffee/tea maker'],
+  //     amenities: ['Complimentary bottled water', 'Coffee and tea making facilities', 'Premium bedding and linens', 'Ensuite bathroom with shower and bathtub', 'Luxury toiletries', 'Hairdryer', 'Bathrobe and slippers', '24-hour room service']
+  //   };
 
-    setRooms([...rooms, room]);
-    setShowAddRoomModal(false);
-    setNewRoom({
-      name: '',
-      size: '',
-      bedType: '',
-      guests: '',
-      price: '',
-      status: 'Available',
-      totalRooms: '',
-      description: ''
-    });
-  };
+  //   setRooms([...rooms, room]);
+  //   setShowAddRoomModal(false);
+  //   setNewRoom({
+  //     name: '',
+  //     size: '',
+  //     bedType: '',
+  //     guests: '',
+  //     price: '',
+  //     status: 'Available',
+  //     totalRooms: '',
+  //     description: ''
+  //   });
+  // };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <NavBar/>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-400 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading rooms...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <NavBar/>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-xl mb-4">⚠️</div>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={fetchRooms}
+              className="px-4 py-2 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -281,7 +348,7 @@ const HotelManagementSystem = () => {
                 </div>
                 
                 <button 
-                  onClick={() => setShowAddRoomModal(true)}
+                  onClick={() => setShowModal(true)}
                   className="px-5 py-2.5 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors text-sm text-gray-800 flex items-center gap-2"
                 >
                   <Plus size={18} />
@@ -292,53 +359,60 @@ const HotelManagementSystem = () => {
 
             {/* Room Cards */}
             <div className="space-y-4">
-              {sortedRooms.map(room => (
-                <div
-                  key={room.id}
-                  onClick={() => setSelectedRoom(room)}
-                  className="bg-white rounded-xl p-4 flex gap-4 cursor-pointer hover:shadow-lg transition-all border border-gray-200"
-                >
-                  <img src={room.image} alt={room.name} className="w-32 h-28 object-cover rounded-lg" />
-                  
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-800">{room.name}</h3>
-                        <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                          <span className="flex items-center gap-1">
-                            <Home size={13} /> {room.size} m²
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Bed size={13} /> {room.bedType}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <User size={13} /> {room.guests} guests
-                          </span>
+              {rooms.length === 0 ? (
+                <div className="text-center py-12 bg-white rounded-xl">
+                  <Bed size={48} className="mx-auto text-gray-300 mb-4" />
+                  <p className="text-gray-500">No rooms found</p>
+                </div>
+              ) : (
+                rooms.map(room => (
+                  <div
+                    key={room.id}
+                    onClick={() => setSelectedRoom(room)}
+                    className="bg-white rounded-xl p-4 flex gap-4 cursor-pointer hover:shadow-lg transition-all border border-gray-200"
+                  >
+                    <img src={room.image} alt={room.name} className="w-32 h-28 object-cover rounded-lg" />
+                    
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-800">{room.name}</h3>
+                          <div className="flex gap-4 text-xs text-gray-500 mt-1">
+                            <span className="flex items-center gap-1">
+                              <Home size={13} /> {room.size} m²
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Bed size={13} /> {room.bedType}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <User size={13} /> {room.guests} guests
+                            </span>
+                          </div>
                         </div>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          room.status === 'Available' 
+                            ? 'bg-teal-50 text-teal-700' 
+                            : 'bg-yellow-50 text-yellow-700'
+                        }`}>
+                          {room.status}
+                        </span>
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        room.status === 'Available' 
-                          ? 'bg-teal-50 text-teal-700' 
-                          : 'bg-yellow-50 text-yellow-700'
-                      }`}>
-                        {room.status}
-                      </span>
-                    </div>
-                    
-                    <p className="text-xs text-gray-600 mb-3 line-clamp-2">{room.description}</p>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
-                        Availability: <span className="font-semibold text-gray-700">{room.availability.occupied}/{room.availability.total} Rooms</span>
-                      </span>
-                      <div className="text-right">
-                        <span className="text-2xl font-bold text-gray-800">${room.price}</span>
-                        <span className="text-gray-500 text-xs">/night</span>
+                      
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">{room.description}</p>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">
+                          Availability: <span className="font-semibold text-gray-700">{room.availability.occupied}/{room.availability.total} Rooms</span>
+                        </span>
+                        <div className="text-right">
+                          <span className="text-2xl font-bold text-gray-800">${room.price}</span>
+                          <span className="text-gray-500 text-xs">/night</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -348,10 +422,26 @@ const HotelManagementSystem = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gray-800">Room Detail</h2>
-                  <button className="px-4 py-2 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors text-sm text-gray-800">
+                  <button 
+                    onClick={() => {
+                      setRoomToEdit(selectedRoom); // Pass the current room object
+                      setShowEditModal(true);
+                    }}
+                    className="px-4 py-2 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors text-sm text-gray-800"
+                  >
                     Edit
                   </button>
                 </div>
+
+                <EditRoomModal
+                  showEditRoomModal={showEditModal}
+                  setShowEditRoomModal={setShowEditModal}
+                  roomToEdit={selectedRoom}
+                  onRoomUpdated={() => {
+                    console.log('Room updated!');
+                    // Refresh your rooms list here
+                  }}
+                />
 
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
@@ -488,160 +578,14 @@ const HotelManagementSystem = () => {
       </div>
 
       {/* Add Room Modal */}
-      {showAddRoomModal && (
+      {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
-              <h2 className="text-2xl font-bold text-gray-800">Add New Room</h2>
-              <button 
-                onClick={() => setShowAddRoomModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Room Name *</label>
-                  <input
-                    type="text"
-                    value={newRoom.name}
-                    onChange={(e) => setNewRoom({...newRoom, name: e.target.value})}
-                    placeholder="e.g., Deluxe"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Size (m²) *</label>
-                  <input
-                    type="number"
-                    value={newRoom.size}
-                    onChange={(e) => setNewRoom({...newRoom, size: e.target.value})}
-                    placeholder="e.g., 35"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Bed Type *</label>
-                  <select
-                    value={newRoom.bedType}
-                    onChange={(e) => setNewRoom({...newRoom, bedType: e.target.value})}
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
-                  >
-                    <option value="">Select bed type</option>
-                    <option value="Single Bed">Single Bed</option>
-                    <option value="Queen Bed">Queen Bed</option>
-                    <option value="King Bed">King Bed</option>
-                    <option value="2 Queen Beds">2 Queen Beds</option>
-                    <option value="2 King Beds">2 King Beds</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Max Guests *</label>
-                  <input
-                    type="number"
-                    value={newRoom.guests}
-                    onChange={(e) => setNewRoom({...newRoom, guests: e.target.value})}
-                    placeholder="e.g., 2"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Price per Night ($) *</label>
-                  <input
-                    type="number"
-                    value={newRoom.price}
-                    onChange={(e) => setNewRoom({...newRoom, price: e.target.value})}
-                    placeholder="e.g., 150"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Total Rooms *</label>
-                  <input
-                    type="number"
-                    value={newRoom.totalRooms}
-                    onChange={(e) => setNewRoom({...newRoom, totalRooms: e.target.value})}
-                    placeholder="e.g., 25"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
-                <select
-                  value={newRoom.status}
-                  onChange={(e) => setNewRoom({...newRoom, status: e.target.value})}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm"
-                >
-                  <option value="Available">Available</option>
-                  <option value="Occupied">Occupied</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                <textarea
-                  value={newRoom.description}
-                  onChange={(e) => setNewRoom({...newRoom, description: e.target.value})}
-                  placeholder="Enter room description..."
-                  rows="3"
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 text-sm resize-none"
-                />
-              </div>
-            </div>
-
-            <div className="p-6 border-t border-gray-200 flex gap-3 justify-end sticky bottom-0 bg-white">
-              <button
-                onClick={() => setShowAddRoomModal(false)}
-                className="px-5 py-2.5 border border-gray-300 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-sm text-gray-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddRoom}
-                className="px-5 py-2.5 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors text-sm text-gray-800"
-              >
-                Add Room
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Image Gallery Modal */}
-      {showImageGallery && selectedRoom && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-          <button 
-            onClick={() => setShowImageGallery(false)}
-            className="absolute top-4 right-4 p-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-colors"
-          >
-            <X size={24} className="text-white" />
-          </button>
-          
-          <div className="max-w-5xl w-full">
-            <div className="grid grid-cols-2 gap-4">
-              {selectedRoom.gallery.map((img, idx) => (
-                <img 
-                  key={idx}
-                  src={img} 
-                  alt={`${selectedRoom.name} ${idx + 1}`}
-                  className="w-full h-80 object-cover rounded-lg"
-                />
-              ))}
-            </div>
+            <AddRoomModal
+              showAddRoomModal={showModal}
+              setShowAddRoomModal={setShowModal}
+              onRoomAdded={() => console.log('Room added!')}
+            />
           </div>
         </div>
       )}

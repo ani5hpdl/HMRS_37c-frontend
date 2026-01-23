@@ -23,3 +23,21 @@ const config = {
 }
 
 export const login = (data) => Api.post('/api/user/login',data);
+
+export const getRooms = () => Api.get('/api/rooms/getAllRooms',config);
+
+export const createRoom = (data) => Api.post('/api/rooms/createRooms',data,config);
+
+export const updateRoom = (id,data) => Api.put(`/api/rooms/updateRoom/${id}`,data,config);
+
+export const deleteRoom = (id) => Api.delete(`/api/rooms/delete/${id}`,config);
+
+export const getAvailableRooms = (params) => Api.get('/api/rooms/available', { params, ...config });
+
+export const getRoomTypes = () => Api.get('/api/room-types/getAllRoomTypes',config);
+
+export const createRoomType = (data) => Api.post('/api/room-types/createRoomType',data,config);
+
+export const updateRoomType = (id,data) => Api.put(`/api/room-types/updateRoomType/${id}`,data,config);
+
+export const deleteRoomType = (id) => Api.delete(`/api/room-types/delete/${id}`,config);
