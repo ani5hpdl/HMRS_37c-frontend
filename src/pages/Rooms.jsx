@@ -21,19 +21,7 @@ const HotelManagementSystem = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-
-  const [newRoom, setNewRoom] = useState({
-    name: '',
-    size: '',
-    bedType: '',
-    guests: '',
-    price: '',
-    status: 'Available',
-    totalRooms: '',
-    description: ''
-  });
-
- const fetchRooms = async () => {
+  const fetchRooms = async () => {
     try {
       setLoading(true);
       const response = await getRooms();
@@ -128,7 +116,6 @@ const HotelManagementSystem = () => {
   if (loading) {
     return (
       <div className="flex h-screen bg-gray-100">
-        <NavBar/>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-400 mx-auto mb-4"></div>
@@ -142,12 +129,11 @@ const HotelManagementSystem = () => {
   if (error) {
     return (
       <div className="flex h-screen bg-gray-100">
-        <NavBar/>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="text-red-500 text-xl mb-4">⚠️</div>
             <p className="text-gray-600 mb-4">{error}</p>
-            <button 
+            <button
               onClick={fetchRooms}
               className="px-4 py-2 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors"
             >
@@ -161,123 +147,100 @@ const HotelManagementSystem = () => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <NavBar/>
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="flex h-full">
           {/* Room List */}
           <div className="flex-1 p-6 bg-gray-50">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-2xl font-bold text-gray-800">Rooms</h1>
-              
-              <div className="flex items-center gap-3">
-                <button className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </button>
-                <button className="p-2 hover:bg-gray-200 rounded-lg relative transition-colors">
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                  </svg>
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-                <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-200 shadow-sm">
-                  <div className="w-8 h-8 bg-lime-400 rounded-full flex items-center justify-center font-bold text-gray-800 text-sm">
-                    JD
-                  </div>
-                  <div className="text-xs">
-                    <div className="font-semibold text-gray-800">Jaylon Dorwart</div>
-                    <div className="text-gray-500">Admin</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
+
             {/* Search and Filters */}
             <div className="flex gap-3 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={16} />
-            <input
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search rooms..."
-              className="w-full pl-10 py-2 border rounded-lg"
-            />
-          </div>
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-3 text-gray-400" size={16} />
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search rooms..."
+                  className="w-full pl-10 py-2 border rounded-lg"
+                />
+              </div>
 
-          <select
-            value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
-            className="border px-4 rounded-lg"
-          >
-            <option value="popular">Popular</option>
-            <option value="price-low">Price: Low → High</option>
-            <option value="price-high">Price: High → Low</option>
-            <option value="size">Size</option>
-          </select>
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="border px-4 rounded-lg"
+              >
+                <option value="popular">Popular</option>
+                <option value="price-low">Price: Low → High</option>
+                <option value="price-high">Price: High → Low</option>
+                <option value="size">Size</option>
+              </select>
 
-          <select
-            value={filterType}
-            onChange={e => setFilterType(e.target.value)}
-            className="border px-4 rounded-lg"
-          >
-            <option value="all">All</option>
-            <option value="available">Available</option>
-            <option value="occupied">Occupied</option>
-          </select>
-        </div>
+              <select
+                value={filterType}
+                onChange={e => setFilterType(e.target.value)}
+                className="border px-4 rounded-lg"
+              >
+                <option value="all">All</option>
+                <option value="available">Available</option>
+                <option value="occupied">Occupied</option>
+              </select>
+
+              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onClick={() => setShowModal(true)}
+              >
+                <Plus size={18} />
+                Add Rooms
+              </button>
+            </div>
 
             {/* Room Cards */}
             <div className="space-y-4">
-          {filteredRooms.length === 0 ? (
-            <div className="text-center text-gray-500 py-20">
-              No rooms found
-            </div>
-          ) : (
-            filteredRooms.map(room => (
-              <div
-                key={room.id}
-                onClick={() => setSelectedRoom(room)}
-                className="bg-white p-4 rounded-xl flex gap-4 cursor-pointer hover:shadow"
-              >
-                <img
-                  src={room.image}
-                  alt={room.name}
-                  className="w-32 h-24 rounded-lg object-cover"
-                />
-
-                <div className="flex-1">
-                  <div className="flex justify-between">
-                    <h3 className="font-bold">{room.name}</h3>
-                    <span
-                      className={`text-xs px-3 py-1 rounded-full ${
-                        room.status === "Available"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {room.status}
-                    </span>
-                  </div>
-
-                  <div className="text-xs text-gray-500 flex gap-4 mt-1">
-                    <span><Home size={12} /> {room.size} m²</span>
-                    <span><Bed size={12} /> {room.bedType}</span>
-                    <span><User size={12} /> {room.guests}</span>
-                  </div>
-
-                  <div className="mt-3 font-semibold">
-                    ${room.price} / night
-                  </div>
+              {filteredRooms.length === 0 ? (
+                <div className="text-center text-gray-500 py-20">
+                  No rooms found
                 </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
+              ) : (
+                filteredRooms.map(room => (
+                  <div
+                    key={room.id}
+                    onClick={() => setSelectedRoom(room)}
+                    className="bg-white p-4 rounded-xl flex gap-4 cursor-pointer hover:shadow"
+                  >
+                    <img
+                      src={room.image}
+                      alt={room.name}
+                      className="w-32 h-24 rounded-lg object-cover"
+                    />
+
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <h3 className="font-bold">{room.name}</h3>
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full ${room.status === "Available"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                            }`}
+                        >
+                          {room.status}
+                        </span>
+                      </div>
+
+                      <div className="text-xs text-gray-500 flex gap-4 mt-1">
+                        <span><Home size={12} /> {room.size} m²</span>
+                        <span><Bed size={12} /> {room.bedType}</span>
+                        <span><User size={12} /> {room.guests}</span>
+                      </div>
+
+                      <div className="mt-3 font-semibold">
+                        ${room.price} / night
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
 
           {/* Room Detail Sidebar */}
           {selectedRoom && (
@@ -285,7 +248,7 @@ const HotelManagementSystem = () => {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gray-800">Room Detail</h2>
-                  <button 
+                  <button
                     onClick={() => {
                       setRoomToEdit(selectedRoom); // Pass the current room object
                       setShowEditModal(true);
@@ -309,11 +272,10 @@ const HotelManagementSystem = () => {
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-bold text-gray-800">{selectedRoom.name} Room</h3>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      selectedRoom.status === 'Available' 
-                        ? 'bg-teal-50 text-teal-700' 
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedRoom.status === 'Available'
+                        ? 'bg-teal-50 text-teal-700'
                         : 'bg-yellow-50 text-yellow-700'
-                    }`}>
+                      }`}>
                       {selectedRoom.status}
                     </span>
                   </div>
@@ -321,22 +283,22 @@ const HotelManagementSystem = () => {
                 </div>
 
                 <div className="mb-6">
-                  <img 
-                    src={selectedRoom.image} 
-                    alt={selectedRoom.name} 
+                  <img
+                    src={selectedRoom.image}
+                    alt={selectedRoom.name}
                     className="w-full h-56 object-cover rounded-lg mb-3 cursor-pointer hover:opacity-90 transition-opacity"
                     onClick={() => setShowImageGallery(true)}
                   />
                   <div className="grid grid-cols-3 gap-2">
                     {selectedRoom.gallery.slice(1, 3).map((img, idx) => (
-                      <img 
+                      <img
                         key={idx}
-                        src={img} 
-                        className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity" 
+                        src={img}
+                        className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                         onClick={() => setShowImageGallery(true)}
                       />
                     ))}
-                    <div 
+                    <div
                       className="relative cursor-pointer hover:opacity-90 transition-opacity"
                       onClick={() => setShowImageGallery(true)}
                     >
@@ -380,7 +342,7 @@ const HotelManagementSystem = () => {
                       <div key={idx} className="flex items-start gap-2 text-sm">
                         <div className="w-5 h-5 rounded bg-teal-50 flex items-center justify-center mt-0.5 flex-shrink-0">
                           <svg className="w-3 h-3 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
                         <span className="text-gray-700 leading-relaxed">{feature}</span>
@@ -426,7 +388,7 @@ const HotelManagementSystem = () => {
                       <div key={idx} className="flex items-start gap-2 text-sm">
                         <div className="w-5 h-5 rounded bg-teal-50 flex items-center justify-center mt-0.5 flex-shrink-0">
                           <svg className="w-3 h-3 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
                         <span className="text-gray-700 leading-relaxed">{amenity}</span>

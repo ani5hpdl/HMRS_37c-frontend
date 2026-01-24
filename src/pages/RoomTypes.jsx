@@ -53,8 +53,6 @@ const RoomTypes = () => {
 
     return (
         <div className="flex h-screen bg-gray-100">
-            <NavBar />
-
             <div className="flex-1 flex">
                 {/* LIST */}
                 <div className="flex-1 p-6 bg-gray-50">
