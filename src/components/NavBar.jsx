@@ -1,90 +1,119 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Home, Calendar, MessageSquare, Package, DollarSign, Star, Users, Bed, Menu } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import {
+  Home,
+  Calendar,
+  DollarSign,
+  Star,
+  Users,
+  Bed,
+  Menu,
+  ClipboardList,
+  Boxes,
+  FileText,
+  BedDouble
+} from 'lucide-react';
+
+const NAV_SECTIONS = [
+  {
+    title: 'Core',
+    items: [
+      { icon: Home, label: 'Dashboard', path: '/dashboard' },
+      { icon: Calendar, label: 'Reservation', path: '/reservation' },
+      { icon: Bed, label: 'Rooms', path: '/rooms' },
+      { icon: BedDouble, label: 'Rooms Types', path: '/rooms-types' }
+    ]
+  },
+  {
+    title: 'Operations',
+    items: [
+      { icon: ClipboardList, label: 'Housekeeping', path: '/housekeeping' },
+      { icon: Boxes, label: 'Inventory', path: '/inventory' },
+      { icon: Calendar, label: 'Calendar', path: '/calendar' }
+    ]
+  },
+  {
+    title: 'Finance',
+    items: [
+      { icon: DollarSign, label: 'Expenses', path: '/expenses' },
+      { icon: FileText, label: 'Invoices', path: '/invoices' }
+    ]
+  },
+  {
+    title: 'Business',
+    items: [
+      { icon: Star, label: 'Reviews', path: '/reviews' },
+      { icon: Users, label: 'Users', path: '/users' }
+    ]
+  }
+];
 
 const NavBar = ({ isSidebarOpen = true, onToggleSidebar }) => {
-  const location = useLocation();
-  
-  const menuItems = [
-    { id: 'dashboard', icon: Home, label: 'Dashboard', path: '/dashboard' },
-    { id: 'reservation', icon: Calendar, label: 'Reservation', path: '/reservation' },
-    { id: 'rooms', icon: Bed, label: 'Rooms', path: '/rooms' },
-    { id: 'messages', icon: MessageSquare, label: 'Messages', path: '/messages', badge: 3 },
-    { id: 'housekeeping', icon: Package, label: 'Housekeeping', path: '/housekeeping' },
-    { id: 'inventory', icon: Package, label: 'Inventory', path: '/inventory' },
-    { id: 'calendar', icon: Calendar, label: 'Calendar', path: '/calender' },
-    { id: 'financials', icon: DollarSign, label: 'Financials', path: '/finances' },
-    { id: 'reviews', icon: Star, label: 'Reviews', path: '/reviews' },
-    { id: 'concierge', icon: Users, label: 'Concierge', path: '/concierge' }
-  ];
-
-  const isActiveRoute = (path) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
-  };
-
   return (
-    <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col shadow-sm`}>
+    <aside
+      className={`
+        ${isSidebarOpen ? 'w-64' : 'w-20'}
+        bg-white border-r border-gray-200
+        transition-all duration-300
+        flex flex-col
+        h-screen
+        sticky top-0
+      `}
+    >
       {/* Header */}
-      <div className="p-6 border-b border-gray-200 flex items-center justify-between">
+      <div className="h-16 px-4 flex items-center justify-between border-b shrink-0">
         {isSidebarOpen && (
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-lime-400 rounded flex items-center justify-center">
-              <div className="grid grid-cols-2 gap-0.5">
-                <div className="w-1.5 h-1.5 bg-gray-800 rounded-sm"></div>
-                <div className="w-1.5 h-1.5 bg-gray-800 rounded-sm"></div>
-                <div className="w-1.5 h-1.5 bg-gray-800 rounded-sm"></div>
-                <div className="w-1.5 h-1.5 bg-gray-800 rounded-sm"></div>
-              </div>
-            </div>
-            <span className="font-bold text-xl text-gray-800">LUXE STAY</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg" />
+            <span className="font-bold text-lg text-gray-800">HotelMS</span>
+          </div>
         )}
-        {onToggleSidebar && (
-          <button onClick={onToggleSidebar} className="text-gray-500 hover:text-gray-700">
-            <Menu size={20} />
-          </button>
-        )}
+        <button
+          onClick={onToggleSidebar}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <Menu size={20} />
+        </button>
       </div>
-      
-      {/* Navigation Menu */}
-      <nav className="flex-1 p-3 overflow-y-auto">
-        {menuItems.map(item => (
-          <Link
-            key={item.id}
-            to={item.path}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 mb-1 rounded-lg transition-colors text-sm ${
-              isActiveRoute(item.path)
-                ? 'bg-lime-100 text-gray-900 font-medium' 
-                : 'text-gray-600 hover:bg-gray-50'
-            }`}
-          >
-            <item.icon size={18} />
-            {isSidebarOpen && <span>{item.label}</span>}
-            {item.badge && isSidebarOpen && (
-              <span className="ml-auto bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                {item.badge}
-              </span>
+
+      {/* Navigation (NO SCROLL) */}
+      <nav className="flex-1 px-2 py-4">
+        {NAV_SECTIONS.map(section => (
+          <div key={section.title} className="mb-4">
+            {isSidebarOpen && (
+              <p className="px-3 mb-2 text-xs font-semibold text-black-400 uppercase">
+                {section.title}
+              </p>
             )}
-          </Link>
+
+            {section.items.map(item => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `relative flex items-center gap-3 px-3 py-2.5 mb-1 rounded-lg text-sm transition-colors
+                  ${
+                    isActive
+                      ? 'bg-yellow-50 text-yellow-700 font-medium'
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && (
+                      <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-yellow-500" />
+                    )}
+                    <item.icon size={18} className="shrink-0" />
+                    {isSidebarOpen && <span>{item.label}</span>}
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </div>
         ))}
       </nav>
-
-      {/* Promo Card */}
-      {isSidebarOpen && (
-        <div className="p-4">
-          <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-4 border border-green-100">
-            <div className="bg-white rounded-lg p-3 mb-3 text-center shadow-sm">
-              <div className="text-3xl">📊</div>
-            </div>
-            <h3 className="font-bold text-sm mb-1 text-gray-800">Elevate Hospitality Standards</h3>
-            <p className="text-xs text-gray-600 mb-3">Enhanced Reporting, Faster Check-Ins, & Integrated Marketing</p>
-            <button className="w-full bg-lime-400 hover:bg-lime-500 text-gray-900 font-semibold py-2.5 px-4 rounded-lg text-sm transition-colors">
-              Update Now
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    </aside>
   );
 };
 
