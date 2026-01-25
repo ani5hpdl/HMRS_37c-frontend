@@ -31,8 +31,8 @@ const InventoryDashboard = () => {
   };
 
   const handleSelectItem = (itemId) => {
-    setSelectedItems(prev => 
-      prev.includes(itemId) 
+    setSelectedItems(prev =>
+      prev.includes(itemId)
         ? prev.filter(id => id !== itemId)
         : [...prev, itemId]
     );
@@ -59,7 +59,7 @@ const InventoryDashboard = () => {
     const availability = newItem.inStock === 0 ? 'Out of Stock' : newItem.inStock < 30 ? 'Low' : 'Available';
     const icons = ['🎯', '📦', '🎁', '🔧', '🎨', '🧰', '📱', '💡'];
     const colors = ['bg-red-200', 'bg-blue-200', 'bg-green-200', 'bg-yellow-200', 'bg-purple-200', 'bg-pink-200'];
-    
+
     const item = {
       id: items.length + 1,
       name: newItem.name,
@@ -70,7 +70,7 @@ const InventoryDashboard = () => {
       icon: icons[Math.floor(Math.random() * icons.length)],
       color: colors[Math.floor(Math.random() * colors.length)]
     };
-    
+
     setItems([...items, item]);
     setShowAddModal(false);
     setNewItem({ name: '', category: 'Linen', inStock: 0, inReorder: 0 });
@@ -79,7 +79,7 @@ const InventoryDashboard = () => {
 
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          item.category.toLowerCase().includes(searchTerm.toLowerCase());
+      item.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'All Category' || item.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
@@ -94,26 +94,8 @@ const InventoryDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <NavBar/>
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Inventory</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <img src="/api/placeholder/32/32" alt="User" className="w-8 h-8 rounded-full" />
-              <div>
-                <p className="font-medium text-sm">Jaydon Donovan</p>
-                <p className="text-xs text-gray-500">Admin</p>
-              </div>
-            </div>
-            <Settings className="text-gray-600 cursor-pointer" size={20} />
-            <Bell className="text-red-500 cursor-pointer" size={20} />
-          </div>
-        </div>
 
         {/* Search and Filters */}
         <div className="bg-white px-6 py-4 border-b border-gray-200">
@@ -128,7 +110,7 @@ const InventoryDashboard = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
               />
             </div>
-            
+
             <div className="flex items-center gap-3">
               <span className="text-sm text-gray-600">Sort by</span>
               <select
@@ -269,7 +251,7 @@ const InventoryDashboard = () => {
                   ✕
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-16 h-16 ${viewDetailItem.color} rounded-lg flex items-center justify-center text-3xl`}>
@@ -333,23 +315,23 @@ const InventoryDashboard = () => {
                   ✕
                 </button>
               </div>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
                   <input
                     type="text"
                     value={newItem.name}
-                    onChange={(e) => setNewItem({...newItem, name: e.target.value})}
+                    onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
                     placeholder="Enter item name"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                  <select 
+                  <select
                     value={newItem.category}
-                    onChange={(e) => setNewItem({...newItem, category: e.target.value})}
+                    onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
                   >
                     <option>Linen</option>
@@ -364,7 +346,7 @@ const InventoryDashboard = () => {
                   <input
                     type="number"
                     value={newItem.inStock}
-                    onChange={(e) => setNewItem({...newItem, inStock: e.target.value})}
+                    onChange={(e) => setNewItem({ ...newItem, inStock: e.target.value })}
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
                     placeholder="0"
                   />
@@ -374,7 +356,7 @@ const InventoryDashboard = () => {
                   <input
                     type="number"
                     value={newItem.inReorder}
-                    onChange={(e) => setNewItem({...newItem, inReorder: e.target.value})}
+                    onChange={(e) => setNewItem({ ...newItem, inReorder: e.target.value })}
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400"
                     placeholder="0"
                   />

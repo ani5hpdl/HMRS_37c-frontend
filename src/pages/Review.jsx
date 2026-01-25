@@ -90,7 +90,7 @@ const ReviewDashboard = () => {
     let filtered = [...reviews];
 
     if (searchTerm) {
-      filtered = filtered.filter(r => 
+      filtered = filtered.filter(r =>
         r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         r.text.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -120,10 +120,10 @@ const ReviewDashboard = () => {
   const maxHeight = Math.max(...chartData.map(d => Math.max(d.positive, d.negative, d.neutral)));
 
   const exportData = () => {
-    const csvContent = "data:text/csv;charset=utf-8," 
+    const csvContent = "data:text/csv;charset=utf-8,"
       + "Name,Date,Rating,Country,Review\n"
       + filteredReviews.map(r => `"${r.name}","${r.date}",${r.rating},"${r.country}","${r.text}"`).join("\n");
-    
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -135,7 +135,6 @@ const ReviewDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <NavBar/>
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Header */}
@@ -171,7 +170,7 @@ const ReviewDashboard = () => {
             <div className="bg-white rounded-xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold">Review Statistics</h3>
-                <select 
+                <select
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                   className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium cursor-pointer"
@@ -182,20 +181,20 @@ const ReviewDashboard = () => {
                   <option>Last 30 Days</option>
                 </select>
               </div>
-              
+
               <div className="flex items-end justify-between h-48 gap-2">
                 {chartData.map((data, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-1">
                     <div className="w-full flex flex-col gap-1 items-center justify-end flex-1">
-                      <div 
+                      <div
                         className="w-full bg-green-300 rounded-t"
                         style={{ height: `${(data.positive / maxHeight) * 100}%` }}
                       ></div>
-                      <div 
+                      <div
                         className="w-full bg-yellow-300 rounded-t"
                         style={{ height: `${(data.neutral / maxHeight) * 100}%` }}
                       ></div>
-                      <div 
+                      <div
                         className="w-full bg-red-300 rounded-t"
                         style={{ height: `${(data.negative / maxHeight) * 100}%` }}
                       ></div>
@@ -234,7 +233,7 @@ const ReviewDashboard = () => {
                 <div className="flex-1">
                   <div className="text-6xl font-bold text-gray-800 mb-2">4.6</div>
                   <div className="flex items-center gap-1 mb-2">
-                    {[1,2,3,4,5].map(i => (
+                    {[1, 2, 3, 4, 5].map(i => (
                       <Star key={i} size={20} fill={i <= 4.6 ? "#FCD34D" : "none"} className="text-yellow-400" />
                     ))}
                   </div>
@@ -248,14 +247,14 @@ const ReviewDashboard = () => {
                   <div className="relative h-32 w-32">
                     <svg className="transform -rotate-90 w-32 h-32">
                       <circle cx="64" cy="64" r="56" stroke="#E5E7EB" strokeWidth="8" fill="none" />
-                      <circle 
-                        cx="64" 
-                        cy="64" 
-                        r="56" 
-                        stroke="#86EFAC" 
-                        strokeWidth="8" 
+                      <circle
+                        cx="64"
+                        cy="64"
+                        r="56"
+                        stroke="#86EFAC"
+                        strokeWidth="8"
                         fill="none"
-                        strokeDasharray={`${(4.6/5) * 352} 352`}
+                        strokeDasharray={`${(4.6 / 5) * 352} 352`}
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
@@ -273,7 +272,7 @@ const ReviewDashboard = () => {
                       <span className="text-sm font-semibold">{rating.score}</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
+                      <div
                         className="bg-yellow-400 h-2 rounded-full"
                         style={{ width: `${(rating.score / 5) * 100}%` }}
                       ></div>
@@ -296,7 +295,7 @@ const ReviewDashboard = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* World Map Visualization */}
               <div className="relative">
-                <img 
+                <img
                   src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 400'%3E%3Crect fill='%23f3f4f6' width='800' height='400'/%3E%3Ctext x='400' y='200' font-family='Arial' font-size='24' fill='%239ca3af' text-anchor='middle'%3EWorld Map%3C/text%3E%3C/svg%3E"
                   alt="World Map"
                   className="w-full h-64 object-contain"
@@ -317,7 +316,7 @@ const ReviewDashboard = () => {
                         <span className="text-sm font-semibold">{country.percentage}%</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
+                        <div
                           className={`${country.color} h-2 rounded-full`}
                           style={{ width: `${country.percentage}%` }}
                         ></div>
@@ -334,14 +333,14 @@ const ReviewDashboard = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold">Customer Reviews</h3>
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={exportData}
                   className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium flex items-center gap-2"
                 >
                   <Download size={16} />
                   Export
                 </button>
-                <select 
+                <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm font-medium cursor-pointer"
@@ -368,8 +367,8 @@ const ReviewDashboard = () => {
                   />
                 </div>
               </div>
-              
-              <select 
+
+              <select
                 value={selectedCountry}
                 onChange={(e) => setSelectedCountry(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
@@ -380,7 +379,7 @@ const ReviewDashboard = () => {
                 ))}
               </select>
 
-              <select 
+              <select
                 value={selectedRating}
                 onChange={(e) => setSelectedRating(e.target.value)}
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
@@ -413,21 +412,6 @@ const ReviewDashboard = () => {
   );
 };
 
-const SidebarItem = ({ icon, label, active, badge }) => (
-  <div className={`flex items-center justify-between px-6 py-3 cursor-pointer transition-colors ${
-    active ? 'bg-yellow-50 border-r-4 border-yellow-400 text-yellow-600' : 'text-gray-600 hover:bg-gray-50'
-  }`}>
-    <div className="flex items-center gap-3">
-      {icon}
-      <span className="font-medium">{label}</span>
-    </div>
-    {badge && (
-      <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-        {badge}
-      </span>
-    )}
-  </div>
-);
 
 const ReviewCard = ({ review }) => {
   const [helpful, setHelpful] = useState(review.helpful);
@@ -452,23 +436,23 @@ const ReviewCard = ({ review }) => {
             <span className="text-xs text-gray-500">{review.date}</span>
           </div>
           <div className="flex items-center gap-1 mt-1">
-            {[1,2,3,4,5].map(i => (
-              <Star 
-                key={i} 
-                size={14} 
-                fill={i <= review.rating ? "#FCD34D" : "none"} 
-                className="text-yellow-400" 
+            {[1, 2, 3, 4, 5].map(i => (
+              <Star
+                key={i}
+                size={14}
+                fill={i <= review.rating ? "#FCD34D" : "none"}
+                className="text-yellow-400"
               />
             ))}
           </div>
         </div>
       </div>
-      
+
       <p className="text-sm text-gray-600 mb-3 line-clamp-3">{review.text}</p>
-      
+
       <div className="flex items-center justify-between text-xs text-gray-500">
         <span>{review.country}</span>
-        <button 
+        <button
           onClick={handleHelpful}
           className={`flex items-center gap-1 ${marked ? 'text-blue-600' : 'hover:text-blue-600'}`}
         >

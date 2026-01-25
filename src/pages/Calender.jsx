@@ -10,7 +10,7 @@ const LodgifyCalendar = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [editingEvent, setEditingEvent] = useState(null);
-  
+
   const [newEvent, setNewEvent] = useState({
     title: '',
     date: '',
@@ -82,7 +82,7 @@ const LodgifyCalendar = () => {
     };
 
     await saveEvent(event);
-    
+
     setShowAddModal(false);
     setEditingEvent(null);
     setNewEvent({
@@ -124,7 +124,7 @@ const LodgifyCalendar = () => {
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDayOfWeek = firstDay.getDay();
-    
+
     return { daysInMonth, startingDayOfWeek, year, month };
   };
 
@@ -157,15 +157,15 @@ const LodgifyCalendar = () => {
     return category ? category.borderColor : 'border-gray-300';
   };
 
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                      'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   const isToday = (day) => {
     const today = new Date();
-    return day === today.getDate() && 
-           month === today.getMonth() && 
-           year === today.getFullYear();
+    return day === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear();
   };
 
   const renderCalendarDays = () => {
@@ -187,10 +187,10 @@ const LodgifyCalendar = () => {
     for (let day = 1; day <= daysInMonth; day++) {
       const dayEvents = getEventsForDate(day);
       const today = isToday(day);
-      
+
       days.push(
-        <div 
-          key={day} 
+        <div
+          key={day}
           className={`min-h-28 border border-gray-200 p-2 hover:bg-gray-50 transition-colors cursor-pointer ${today ? 'bg-blue-50' : 'bg-white'}`}
           onClick={() => openAddModal(day)}
         >
@@ -199,8 +199,8 @@ const LodgifyCalendar = () => {
           </div>
           <div className="space-y-1 overflow-y-auto max-h-20">
             {dayEvents.map((event, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className={`${getCategoryColor(event.category)} border ${getCategoryBorder(event.category)} rounded p-1.5 text-xs hover:shadow-md transition-shadow`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -233,31 +233,8 @@ const LodgifyCalendar = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-
-      <NavBar/>
-
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <div className="bg-white shadow-sm p-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Calendar</h1>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center font-bold text-white">
-                JD
-              </div>
-              <div>
-                <div className="font-semibold text-sm">Jaylon Dorwart</div>
-                <div className="text-xs text-gray-500">Admin</div>
-              </div>
-            </div>
-            <Settings className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800" />
-            <div className="relative cursor-pointer">
-              <Bell className="w-5 h-5 text-gray-600 hover:text-gray-800" />
-              <span className="absolute -top-1 -right-1 bg-red-500 w-2 h-2 rounded-full"></span>
-            </div>
-          </div>
-        </div>
 
         {/* Calendar Controls */}
         <div className="bg-white p-4 flex items-center justify-between border-b">
@@ -274,29 +251,29 @@ const LodgifyCalendar = () => {
               </button>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-3">
             <div className="flex bg-gray-100 rounded-lg p-1">
-              <button 
+              <button
                 onClick={() => setViewMode('day')}
                 className={`px-4 py-1 rounded text-sm transition-colors ${viewMode === 'day' ? 'bg-white shadow' : 'hover:bg-gray-200'}`}
               >
                 Day
               </button>
-              <button 
+              <button
                 onClick={() => setViewMode('week')}
                 className={`px-4 py-1 rounded text-sm transition-colors ${viewMode === 'week' ? 'bg-white shadow' : 'hover:bg-gray-200'}`}
               >
                 Week
               </button>
-              <button 
+              <button
                 onClick={() => setViewMode('month')}
                 className={`px-4 py-1 rounded text-sm transition-colors ${viewMode === 'month' ? 'bg-lime-400 font-semibold' : 'hover:bg-gray-200'}`}
               >
                 Month
               </button>
             </div>
-            <select 
+            <select
               className="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:border-lime-400"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
@@ -306,7 +283,7 @@ const LodgifyCalendar = () => {
                 <option key={cat.name} value={cat.name}>{cat.name}</option>
               ))}
             </select>
-            <button 
+            <button
               onClick={() => openAddModal()}
               className="bg-lime-400 text-sm font-semibold px-4 py-2 rounded hover:bg-lime-500 transition-colors flex items-center space-x-2"
             >
@@ -327,7 +304,7 @@ const LodgifyCalendar = () => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="grid grid-cols-7 gap-0">
                 {renderCalendarDays()}
               </div>
@@ -374,7 +351,7 @@ const LodgifyCalendar = () => {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-xl font-bold">{editingEvent ? 'Edit Event' : 'Add New Event'}</h2>
-              <button 
+              <button
                 onClick={() => {
                   setShowAddModal(false);
                   setEditingEvent(null);
@@ -385,14 +362,14 @@ const LodgifyCalendar = () => {
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             <div className="p-4 space-y-4">
               <div>
                 <label className="block text-sm font-semibold mb-1">Event Title *</label>
                 <input
                   type="text"
                   value={newEvent.title}
-                  onChange={(e) => setNewEvent({...newEvent, title: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-lime-400"
                   placeholder="Enter event title"
                 />
@@ -403,7 +380,7 @@ const LodgifyCalendar = () => {
                 <input
                   type="date"
                   value={newEvent.date}
-                  onChange={(e) => setNewEvent({...newEvent, date: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-lime-400"
                 />
               </div>
@@ -414,7 +391,7 @@ const LodgifyCalendar = () => {
                   <input
                     type="time"
                     value={newEvent.startTime}
-                    onChange={(e) => setNewEvent({...newEvent, startTime: e.target.value})}
+                    onChange={(e) => setNewEvent({ ...newEvent, startTime: e.target.value })}
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-lime-400"
                   />
                 </div>
@@ -423,7 +400,7 @@ const LodgifyCalendar = () => {
                   <input
                     type="time"
                     value={newEvent.endTime}
-                    onChange={(e) => setNewEvent({...newEvent, endTime: e.target.value})}
+                    onChange={(e) => setNewEvent({ ...newEvent, endTime: e.target.value })}
                     className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-lime-400"
                   />
                 </div>
@@ -433,7 +410,7 @@ const LodgifyCalendar = () => {
                 <label className="block text-sm font-semibold mb-1">Category *</label>
                 <select
                   value={newEvent.category}
-                  onChange={(e) => setNewEvent({...newEvent, category: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, category: e.target.value })}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-lime-400"
                 >
                   {categories.map(cat => (
@@ -446,7 +423,7 @@ const LodgifyCalendar = () => {
                 <label className="block text-sm font-semibold mb-1">Description</label>
                 <textarea
                   value={newEvent.description}
-                  onChange={(e) => setNewEvent({...newEvent, description: e.target.value})}
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-lime-400"
                   rows="3"
                   placeholder="Add event description"

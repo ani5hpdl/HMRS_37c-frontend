@@ -1,213 +1,213 @@
-import React, { useEffect, useState } from "react";
-import { Search, Send, Bell, Settings } from "lucide-react";
-import NavBar from "../components/NavBar";
+/* ---------- Bot Reply Logic ---------- */
+const getBotReply = (userMessage) => {
+  const msg = userMessage.toLowerCase();
 
-/* ================= TOKEN ================= */
-const USER_TOKEN = "lodgify-token-123";
-const STORAGE_KEY = `lodgify:messages:${USER_TOKEN}`;
-
-/* ================= STORAGE ================= */
-const loadData = () => {
-  try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  } catch {
-    return [];
+  if (msg.includes("check-out") || msg.includes("checkout") || msg.includes("late")) {
+    return "Late check-out is available until 2 PM for an additional fee of $50. Would you like me to arrange this for you?";
   }
+  if (msg.includes("parking") || msg.includes("park")) {
+    return "Yes, we offer complimentary parking for all guests. The parking lot is located behind the main building.";
+  }
+  if (msg.includes("wifi") || msg.includes("internet") || msg.includes("password")) {
+    return "WiFi is available throughout the property. Network: Lodgify-Guest, Password: Welcome2024";
+  }
+  if (msg.includes("breakfast") || msg.includes("food") || msg.includes("restaurant")) {
+    return "Breakfast is served daily from 7 AM to 10 AM in the dining hall. We also have a restaurant open for lunch and dinner.";
+  }
+  if (msg.includes("pool") || msg.includes("gym") || msg.includes("amenities")) {
+    return "Our facilities include a heated pool (6 AM - 10 PM), fitness center (24/7), and spa services (by appointment).";
+  }
+  if (msg.includes("clean") || msg.includes("housekeeping") || msg.includes("towel")) {
+    return "Housekeeping service is available daily. For additional towels or cleaning, please call extension 100 or let us know here.";
+  }
+  if (msg.includes("check-in") || msg.includes("checkin") || msg.includes("arrival")) {
+    return "Check-in time is 3 PM. Early check-in may be available upon request, subject to availability.";
+  }
+  if (msg.includes("cancel") || msg.includes("refund")) {
+    return "Cancellation policy varies by rate. Please provide your booking reference, and I'll check the specific terms for you.";
+  }
+
+  return "Thank you for your message! A member of our team will respond shortly. For urgent matters, please call the front desk.";
 };
 
-const saveData = (data) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-};
+/* ---------- Send message ---------- */
+const sendMessage = () => {
+  if (!message.trim() || !activeChat) return;
 
-/* ================= COMPONENT ================= */
-const Messages = () => {
-  const [conversations, setConversations] = useState([]);
-  const [activeChat, setActiveChat] = useState(null);
-  const [search, setSearch] = useState("");
-  const [message, setMessage] = useState("");
-
-  /* ---------- Load ---------- */
-  useEffect(() => {
-    const stored = loadData();
-    if (stored.length === 0) {
-      const seed = [
-        {
-          id: "1",
-          name: "Alice Johnson",
-          unread: 1,
-          lastMessage: "Can I request a late check-out?",
-          messages: [
-            {
-              id: 1,
-              sender: "guest",
-              text: "Can I request a late check-out?",
-              time: "09:15 AM",
-            },
-          ],
-        },
-        {
-          id: "2",
-          name: "Michael Brown",
-          unread: 0,
-          lastMessage: "Is parking available?",
-          messages: [
-            {
-              id: 1,
-              sender: "guest",
-              text: "Is parking available?",
-              time: "Yesterday",
-            },
-          ],
-        },
-      ];
-      setConversations(seed);
-      saveData(seed);
-    } else {
-      setConversations(stored);
-    }
-  }, []);
-
-  /* ---------- Open chat ---------- */
-  const openChat = (chat) => {
-    const updated = conversations.map(c =>
-      c.id === chat.id ? { ...c, unread: 0 } : c
-    );
-    setConversations(updated);
-    saveData(updated);
-    setActiveChat(updated.find(c => c.id === chat.id));
+  const newMsg = {
+    id: Date.now(),
+    sender: "admin",
+    text: message,
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
   };
 
-  /* ---------- Send message ---------- */
-  const sendMessage = () => {
-    if (!message.trim() || !activeChat) return;
+  const updated = conversations.map(c =>
+    c.id === activeChat.id
+      ? {
+        ...c,
+        lastMessage: message,
+        messages: [...c.messages, newMsg],
+      }
+      : c
+  );
 
-    const newMsg = {
-      id: Date.now(),
-      sender: "admin",
-      text: message,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-    };
+  setConversations(updated);
+  saveData(updated);
+  setActiveChat(updated.find(c => c.id === activeChat.id));
+  setMessage("");
+};
 
+/* ---------- Simulate Guest Message (for testing) ---------- */
+const simulateGuestMessage = (text) => {
+  if (!activeChat) return;
+
+  const guestMsg = {
+    id: Date.now(),
+    sender: "guest",
+    text: text,
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+  };
+
+  const botReply = {
+    id: Date.now() + 1,
+    sender: "admin",
+    text: getBotReply(text),
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+  };
+
+  setTimeout(() => {
     const updated = conversations.map(c =>
       c.id === activeChat.id
         ? {
-            ...c,
-            lastMessage: message,
-            messages: [...c.messages, newMsg],
-          }
+          ...c,
+          lastMessage: text,
+          messages: [...c.messages, guestMsg],
+        }
         : c
     );
-
     setConversations(updated);
     saveData(updated);
     setActiveChat(updated.find(c => c.id === activeChat.id));
-    setMessage("");
+
+    setTimeout(() => {
+      const finalUpdated = conversations.map(c =>
+        c.id === activeChat.id
+          ? {
+            ...c,
+            lastMessage: botReply.text,
+            messages: [...c.messages, guestMsg, botReply],
+          }
+          : c
+      );
+      setConversations(finalUpdated);
+      saveData(finalUpdated);
+      setActiveChat(finalUpdated.find(c => c.id === activeChat.id));
+    }, 1000);
+  }, 100);
+};
+
+import React from 'react'
+
+const Messages = () => {
+  const [conversations, setConversations] = React.useState(() => {
+    const saved = localStorage.getItem('hotel_messages');
+    return saved ? JSON.parse(saved) : [
+      {
+        id: 1,
+        guestName: "John Doe",
+        lastMessage: "Thank you for the info!",
+        messages: [
+          { id: 1, sender: "guest", text: "Hello, what time is check-out?", time: "10:00 AM" },
+          { id: 2, sender: "admin", text: "Check-out is at 11 AM. Would you like a late check-out?", time: "10:05 AM" },
+          { id: 3, sender: "guest", text: "Yes, please. How much is the fee?", time: "10:10 AM" },
+          { id: 4, sender: "admin", text: "Late check-out is available until 2 PM for an additional fee of $50.", time: "10:15 AM" },
+          { id: 5, sender: "guest", text: "Thank you for the info!", time: "10:20 AM" },
+        ],
+      },
+      {
+        id: 2,
+        guestName: "Jane Smith",
+        lastMessage: "Great, see you then!",
+        messages: [
+          { id: 1, sender: "guest", text: "Is breakfast included with my room?", time: "9:00 AM" },
+          { id: 2, sender: "admin", text: "Yes, breakfast is served daily from 7 AM to 10 AM in the dining hall.", time: "9:05 AM" },
+          { id: 3, sender: "guest", text: "Great, see you then!", time: "9:10 AM" },
+        ],
+      },
+    ];
+  });
+  const [activeChat, setActiveChat] = React.useState(null);
+  const [message, setMessage] = React.useState("");
+
+  const saveData = (data) => {
+    localStorage.setItem('hotel_messages', JSON.stringify(data));
   };
 
-  const filtered = conversations.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <NavBar/>
-
-      {/* ================= MESSAGE LIST ================= */}
-      <div className="w-[360px] bg-white border-r flex flex-col">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold mb-3">Messages</h1>
-          <div className="flex items-center border rounded px-3 py-2">
-            <Search className="w-4 h-4 text-gray-400 mr-2" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search name, chat, etc"
-              className="w-full outline-none text-sm"
-            />
+    <div className="flex h-full">
+      {/* Chat List */}
+      <div className="w-1/4 border-r overflow-y-auto">
+        <h2 className="text-xl font-bold p-4 border-b">Conversations</h2>
+        {conversations.map(chat => (
+          <div
+            key={chat.id}
+            className={`p-4 border-b cursor-pointer ${activeChat?.id === chat.id ? 'bg-gray-100' : ''}`}
+            onClick={() => setActiveChat(chat)}
+          >
+            <p className="font-semibold">{chat.guestName}</p>
+            <p className="text-sm text-gray-600 truncate">{chat.lastMessage}</p>
           </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto">
-          {filtered.map(chat => (
-            <div
-              key={chat.id}
-              onClick={() => openChat(chat)}
-              className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
-                activeChat?.id === chat.id ? "bg-gray-100" : ""
-              }`}
-            >
-              <div className="flex justify-between">
-                <span className="font-semibold">{chat.name}</span>
-                {chat.unread > 0 && (
-                  <span className="bg-red-500 text-white text-xs px-2 rounded-full">
-                    {chat.unread}
-                  </span>
-                )}
-              </div>
-              <div className="text-sm text-gray-500 truncate mt-1">
-                {chat.lastMessage}
-              </div>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
 
-      {/* ================= CHAT WINDOW ================= */}
-      <div className="flex-1 flex flex-col bg-white">
-        {!activeChat ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            <div className="text-5xl mb-4">💬</div>
-            Select a conversation to start messaging
-          </div>
-        ) : (
+      {/* Chat Window */}
+      <div className="w-3/4 flex flex-col">
+        {activeChat ? (
           <>
-            <div className="p-4 border-b flex justify-between">
-              <span className="font-semibold">{activeChat.name}</span>
-              <div className="flex gap-4">
-                <Settings className="w-5 h-5 text-gray-500" />
-                <Bell className="w-5 h-5 text-gray-500" />
-              </div>
-            </div>
-
-            <div className="flex-1 p-6 overflow-y-auto space-y-3">
+            <div className="flex-1 p-4 overflow-y-auto border-b">
               {activeChat.messages.map(msg => (
                 <div
                   key={msg.id}
-                  className={`max-w-md p-3 rounded-lg text-sm ${
-                    msg.sender === "admin"
-                      ? "ml-auto bg-lime-400"
-                      : "bg-gray-200"
-                  }`}
+                  className={`mb-4 ${msg.sender === 'admin' ? 'text-right' : 'text-left'}`}
                 >
-                  {msg.text}
-                  <div className="text-xs text-gray-600 mt-1 text-right">
-                    {msg.time}
-                  </div>
+                  <p
+                    className={`inline-block px-4 py-2 rounded-lg ${msg.sender === 'admin' ? 'bg-amber-500 text-white' : 'bg-gray-200 text-gray-900'
+                      }`}
+                  >
+                    {msg.text}
+                  </p>
+                  <div className="text-xs text-gray-500 mt-1">{msg.time}</div>
                 </div>
               ))}
             </div>
-
-            <div className="p-4 border-t flex gap-3">
+            <div className="p-4 flex items-center border-t">
               <input
+                type="text"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="flex-1 border rounded px-4 py-2"
-                placeholder="Type a message..."
+                className="flex-1 border rounded-lg px-4 py-2 mr-4 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                placeholder="Type your message..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') sendMessage();
+                }}
               />
               <button
                 onClick={sendMessage}
-                className="bg-lime-400 p-2 rounded hover:bg-lime-500"
+                className="bg-amber-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600"
               >
-                <Send className="w-4 h-4" />
+                Send
               </button>
             </div>
           </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center text-gray-500">
+            Select a conversation to start messaging
+          </div>
         )}
       </div>
     </div>
   );
-};
+}
 
 export default Messages;
