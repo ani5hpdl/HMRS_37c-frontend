@@ -1,14 +1,43 @@
 import React, { useState } from 'react';
-import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
-import bgImage from "../assets/background.png";
+import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
+import bgImage from "../assets/images/Background.jpg";
+import { forgotPasswordApi } from '../services/api';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = () => {
-    if (email) {
-      setIsSubmitted(true);
+  const handleSubmit = async () => {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^\S+@\S+\.\S+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await forgotPasswordApi({ email });
+
+      if (response.data.success) {
+        setIsSubmitted(true);
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message || 
+        'Failed to send reset email. Please try again.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -16,52 +45,57 @@ export default function ForgotPassword() {
     window.history.back();
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !loading) {
+      handleSubmit();
+    }
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Image Section */}
-<div
-  className="hidden lg:block lg:w-1/2 relative bg-cover bg-center"
-  style={{
-    backgroundImage: `url(${bgImage})`,
-    minHeight: "100vh",
-  }}
->
-  {/* Dark overlay */}
-  <div className="absolute inset-0 bg-black/40"></div>
+      <div
+        className="hidden lg:block lg:w-1/2 relative bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${bgImage})`,
+          minHeight: "100vh",
+        }}
+      >
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-black/40"></div>
 
-  {/* Content */}
-  <div className="relative h-full flex flex-col justify-between p-12 text-white">
-    <h1 className="text-3xl font-bold">LUXE STAY</h1>
+        {/* Content */}
+        <div className="relative h-full flex flex-col justify-between p-12 text-white">
+          <h1 className="text-3xl font-bold">LUXE STAY</h1>
 
-    <div className="mb-16">
-      <h2 className="text-4xl font-bold mb-4">
-        Elevate Your <br />
-        <span className="text-amber-400">Hospitality Experience</span>
-      </h2>
+          <div className="mb-16">
+            <h2 className="text-4xl font-bold mb-4">
+              Elevate Your <br />
+              <span className="text-amber-400">Hospitality Experience</span>
+            </h2>
 
-      <p className="text-lg text-gray-200 max-w-md">
-        Streamline operations, enhance guest satisfaction, and drive revenue
-        with our premium hotel management platform.
-      </p>
+            <p className="text-lg text-gray-200 max-w-md">
+              Streamline operations, enhance guest satisfaction, and drive revenue
+              with our premium hotel management platform.
+            </p>
 
-      <div className="flex gap-12 mt-12">
-        <div>
-          <div className="text-4xl font-bold text-amber-400">500+</div>
-          <div className="text-sm text-gray-300">Hotels Worldwide</div>
-        </div>
-        <div>
-          <div className="text-4xl font-bold text-amber-400">98%</div>
-          <div className="text-sm text-gray-300">Satisfaction rate</div>
-        </div>
-        <div>
-          <div className="text-4xl font-bold text-amber-400">24/7</div>
-          <div className="text-sm text-gray-300">Premium Support</div>
+            <div className="flex gap-12 mt-12">
+              <div>
+                <div className="text-4xl font-bold text-amber-400">500+</div>
+                <div className="text-sm text-gray-300">Hotels Worldwide</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold text-amber-400">98%</div>
+                <div className="text-sm text-gray-300">Satisfaction rate</div>
+              </div>
+              <div>
+                <div className="text-4xl font-bold text-amber-400">24/7</div>
+                <div className="text-sm text-gray-300">Premium Support</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
 
       {/* Right Side - Form Section */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
@@ -74,7 +108,7 @@ export default function ForgotPassword() {
                   className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors"
                 >
                   <ArrowLeft className="w-5 h-5 mr-2" />
-                  Back to Sign In-************
+                  Back to Sign In
                 </button>
 
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">
@@ -83,6 +117,13 @@ export default function ForgotPassword() {
                 <p className="text-gray-600 mb-8">
                   No worries! Enter your email address and we'll send you instructions to reset your password.
                 </p>
+
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
+                    <span className="text-red-700 text-sm">{error}</span>
+                  </div>
+                )}
 
                 <div>
                   <div className="mb-6">
@@ -94,18 +135,24 @@ export default function ForgotPassword() {
                       <input
                         type="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setError('');
+                        }}
+                        onKeyPress={handleKeyPress}
                         placeholder="Enter your email"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+                        disabled={loading}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
 
                   <button
                     onClick={handleSubmit}
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-md"
+                    disabled={loading}
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-md disabled:bg-amber-300 disabled:cursor-not-allowed"
                   >
-                    Send Reset Link
+                    {loading ? 'Sending...' : 'Send Reset Link'}
                   </button>
                 </div>
 
@@ -139,7 +186,11 @@ export default function ForgotPassword() {
                   Didn't receive the email? Check your spam folder or try again.
                 </p>
                 <button
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setEmail('');
+                    setError('');
+                  }}
                   className="text-amber-500 hover:text-amber-600 font-semibold"
                 >
                   Try another email
