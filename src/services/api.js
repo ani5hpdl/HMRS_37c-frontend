@@ -24,6 +24,8 @@ const config = {
 
 export const login = (data) => Api.post('/api/user/login',data);
 
+export const getMyProfile = () => Api.get('/api/user/me',config);
+
 export const getRooms = () => Api.get('/api/rooms/getAllRooms',config);
 
 export const createRoom = (data) => Api.post('/api/rooms/createRooms',data,config);
@@ -49,3 +51,31 @@ export const createAmenity = (data) => Api.post('/api/room-amenities/createAmeni
 export const updateAmenity = (id,data) => Api.put(`/api/room-amenities/updateAmenity/${id}`,data,config);
 
 export const deleteAmenity = (id) => Api.delete(`/api/room-amenities/delete/${id}`,config);
+
+export const getReservations = () => Api.get('/api/reservations/getAllReservations',config);
+
+export const createReservation = (data) => Api.post('/api/reservations/createReservation',data,config);
+
+export const updateReservation = (id,data) => Api.put(`/api/reservations/updateReservation/${id}`,data,config);
+
+export const deleteReservation = (id) => Api.delete(`/api/reservations/delete/${id}`,config);
+
+export const getMyReservations = () => Api.get('/api/reservations/reservations/me',config);
+
+export const getReservationById = (id) => Api.get(`/api/reservations/reservations/${id}`,config);
+
+export const cancelMyReservation = (id) => Api.patch(`/api/reservations/reservations/me/${id}/cancel`,{},config);
+
+export const updateMyReservation = (id,data) => Api.put(`/api/reservations/reservations/me/${id}`,data,config);
+
+export const getReservationsByRoom = (roomId) => Api.get(`/api/reservations/admin/reservations/room/${roomId}`,config);
+
+export const getUsers = () => Api.get('/api/admin/getAllUsers',config);
+
+export const getUserById = (id) => Api.get(`/api/admin/getUserById/${id}`,config);
+
+export const createUser = (data) => Api.post('/api/admin/createUser',data,config);
+
+export const updateUser = (id,data) => Api.put(`/api/admin/updateUserById/${id}`,data,config);
+
+export const deleteUser = (id) => Api.delete(`/api/admin/deleteUser/${id}`,config);
