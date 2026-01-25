@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState } from 'react';
+import { Toaster } from 'react-hot-toast';
 
 import "./index.css";
 
@@ -6,39 +8,218 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Rooms from "./pages/Rooms";
 import Reservation from "./pages/Reservation";
-import Messages from "./pages/Messages";
-import Calender from "./pages/Calender";
+import Calendar from "./pages/Calender";
 import Review from "./pages/Review";
 import HousekeepingDashboard from "./pages/Housekeeping";
 import Inventory from "./pages/Inventory";
-import Finances from "./pages/Finances";
-import NavBar from "./components/NavBar";
-import { Toaster } from 'react-hot-toast';
+import Expenses from "./pages/Expenses";
+import Invoices from "./pages/Invoices";
 import RoomTypes from './pages/RoomTypes';
+import UserManagement from './pages/UserManagement';
+
+import NavBar from "./components/NavBar";
+import Header from "./components/Header";
+import ProtectedRoute from './protected/ProtectedRoute';
+import NotFoundPage from './pages/Error';
+
+const MainLayout = ({ header, children }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  return (
+    <div className="flex min-h-screen  bg-gray-50">
+      <NavBar
+        isSidebarOpen={isSidebarOpen}
+        onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+      />
+
+      <div className="flex flex-col flex-1">
+        <Header {...header} />
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+};
 
 function App() {
   return (
     <Router>
       <Toaster />
-      {/* <NavBar/> */}
+
       <Routes>
-        {/* Login */}
-        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
 
-        {/* Main Pages */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/rooms" element={<Rooms />} />
-        <Route path="/rooms-types" element={<RoomTypes />} />
-        <Route path="/reservation" element={<Reservation />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/calender" element={<Calender />} />
-        <Route path="/reviews" element={<Review />} />
-        <Route path="/housekeeping" element={<HousekeepingDashboard />} />
-        <Route path="/inventory" element={<Inventory />} />
-        <Route path="/finances" element={<Finances />} />
+        <Route
+          path="/dashboard"
+          element={
+           <ProtectedRoute allowedRoles={['admin']} element={
+             <MainLayout
+              header={{
+                title: "Dashboard",
+                subtitle: "Overview of hotel performance"
+              }}
+            >
+              <Dashboard />
+            </MainLayout>
+           }/>
+          }
+        />
 
-        {/* 404 */}
-        <Route path="*" element={<h1>404 - Page Not Found</h1>} />
+        <Route
+          path="/rooms"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+                header={{
+                  title: "Rooms",
+                  subtitle: "Manage room availability and pricing"
+                }}
+              >
+                <Rooms />
+              </MainLayout>
+            }/>
+        }
+        />
+
+        <Route
+          path="/rooms-types"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+                header={{
+                  title: "Rooms Types",
+                  subtitle: "Manage room categories and features"
+                }}
+              >
+                <RoomTypes />
+              </MainLayout>
+            }/>
+        }
+        />
+
+        <Route
+          path="/reservation"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+                <Reservation />
+            }/>
+          }
+        />
+
+        <Route
+          path="/calendar"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+                header={{
+                  title: "Calendar",
+                  subtitle: "Booking schedule overview"
+                }}
+              >
+                <Calendar />
+              </MainLayout>
+            }/>
+          }
+        />
+
+        <Route
+          path="/inventory"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+              header={{
+                title: "Inventory",
+                subtitle: "Track hotel supplies"
+              }}
+            >
+              <Inventory />
+            </MainLayout>
+            }/>
+          }
+        />
+
+        <Route
+          path="/housekeeping"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+              header={{
+                title: "Housekeeping",
+                subtitle: "Room cleaning status"
+              }}
+            >
+              <HousekeepingDashboard />
+            </MainLayout>
+            }/>
+          }
+        />
+
+        <Route
+          path="/expenses"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+                header={{
+                  title: "Expenses",
+                  subtitle: "Track operational costs"
+                }}
+              >
+                <Expenses />
+              </MainLayout>
+            }/>
+          }
+        />
+
+        <Route
+          path="/invoices"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+                header={{
+                  title: "Invoices",
+                  subtitle: "Guest billing & payments"
+                }}
+              >
+                <Invoices />
+              </MainLayout>
+            }/>
+          }
+        />
+
+        <Route
+          path="/users"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+                header={{
+                  title: "User Management",
+                  subtitle: "Manage staff permissions"
+                }}
+              >
+                <UserManagement />
+              </MainLayout>
+            }/>
+          }
+        />
+
+        <Route
+          path="/reviews"
+          element={
+            <ProtectedRoute allowedRoles={['admin']} element={
+              <MainLayout
+              header={{
+                title: "Reviews",
+                subtitle: "Guest feedback & ratings"
+              }}
+            >
+              <Review />
+            </MainLayout>
+            }/>
+          }
+        />
+
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );
