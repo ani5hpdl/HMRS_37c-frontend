@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Calendar as CalendarIcon, Users } from 'lucide-react';
 
 // REPLACE THESE WITH YOUR ACTUAL API IMPORTS
-import { createReservation, getAllRooms, getRoomTypes } from '../services/api';
+import { createReservation, getRooms, getRoomTypes } from '../services/api';
 
 const RoomSelector = () => {
   const [selectedSuite, setSelectedSuite] = useState(null);
@@ -56,7 +56,7 @@ const RoomSelector = () => {
     const fetchRooms = async () => {
       try {
         setLoading(true);
-        const response = await getAllRooms();
+        const response = await getRooms();
 
         if (response.data.success) {
           // Transform API data to match component structure
@@ -314,12 +314,17 @@ const RoomSelector = () => {
     try {
       // Prepare reservation data
       const reservationData = {
+        guestName: `${guestDetails.firstName} ${guestDetails.lastName}`,
+        guestEmail: guestDetails.email,
+        guestContact: guestDetails.phone,
         roomId: selectedSuite,
         checkInDate: reservation.checkIn,
         checkOutDate: reservation.checkOut,
         totalGuests: reservation.adults + reservation.children,
         specialRequest: guestDetails.specialRequests || null
       };
+
+      console.log(reservationData)
 
       // Make API call to create reservation
       const response = await createReservation(reservationData);
@@ -868,7 +873,7 @@ const RoomSelector = () => {
                   Go Back
                 </button>
                 <button
-                  onClick={handleSaveDetails}
+                  onClick={()=>{handleSaveDetails()}}
                   className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition"
                 >
                   Save & Continue

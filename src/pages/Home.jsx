@@ -18,20 +18,7 @@ import iconPool from "../assets/images/pool.jpg";
 import iconSpa from "../assets/images/spa.jpg";
 import iconGym from "../assets/images/gym.jpg";
 import { FaChevronRight, FaMapMarkerAlt, FaStar } from "react-icons/fa";
-import { getAllRooms } from "../services/api.js";
-
-/**
- * Polished Home page
- * - Consistent professional styles across all sections
- * - Subtle framer-motion micro-interactions respectful of reduced-motion
- * - Improved card layout, consistent spacing, better typographic hierarchy
- * - Rooms remain API-backed (getAllRooms) with improved cards: price badge, short meta, CTA
- * - Parallax hero kept and tuned
- *
- * Notes:
- * - Tailwind utility classes used — adjust to your design tokens if needed
- * - Room images use placeholders when API doesn't provide images
- */
+import { getRooms } from "../services/api.js";
 
 const FEATURES = [
   {
@@ -91,7 +78,7 @@ export default function Home() {
       setRoomsLoading(true);
       setRoomsError(null);
       try {
-        const res = await getAllRooms();
+        const res = await getRooms();
         const data = res?.data?.success ? res.data.data || [] : [];
         if (mounted) setRooms(data);
       } catch (err) {

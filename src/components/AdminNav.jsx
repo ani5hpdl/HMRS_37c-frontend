@@ -20,8 +20,8 @@ const NAV_SECTIONS = [
     items: [
       { icon: Home, label: 'Dashboard', path: '/dashboard' },
       { icon: Calendar, label: 'Reservation', path: '/reservation' },
-      { icon: Bed, label: 'Rooms', path: '/rooms' },
-      { icon: BedDouble, label: 'Rooms Types', path: '/rooms-types' }
+      { icon: Bed, label: 'Rooms', path: '/admin/rooms' },
+      { icon: BedDouble, label: 'Rooms Types', path: '/room-types' }
     ]
   },
   {

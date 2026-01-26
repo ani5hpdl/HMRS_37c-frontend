@@ -5,7 +5,7 @@ import heroImg from "../assets/images/hotel-hero.jpg";
 import BookNowButton from "../components/BookNowButton.jsx";
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
-import { getAllRooms } from "../services/api.js";
+import { getRooms } from "../services/api.js";
 import { motion } from "framer-motion";
 import { FaBed, FaBath, FaWifi, FaTv, FaStar, FaChevronLeft, FaChevronRight, FaSearch, FaSortAmountDown } from "react-icons/fa";
 
@@ -31,7 +31,7 @@ const UserRooms = () => {
   const fetchRooms = async () => {
     setLoading(true);
     try {
-      const response = await getAllRooms();
+      const response = await getRooms();
       if (response.data?.success) {
         setAllRooms(response.data.data || []);
         toast.success("Rooms loaded");

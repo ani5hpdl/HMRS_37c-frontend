@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import bgImage from "../assets/images/Background.jpg";
-import { createUserApi } from "../services/api";
+import { register } from "../services/api";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const Register = () => {
     if(!validator()) return
     try {
       setLoading(true);
-      createUserApi(formData)
+      register(formData)
     } catch (error) {
       alert(error.message);
     } finally {
