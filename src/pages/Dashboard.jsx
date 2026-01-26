@@ -1,135 +1,30 @@
-import React, { useState } from 'react';
-import { LayoutDashboard, Calendar, MessageSquare, Package, Star, Users, DollarSign, Home, Bed, ClipboardList, Menu, Search, Bell, MoreVertical, Plus, ChevronDown, TrendingUp, TrendingDown, X, Check } from 'lucide-react';
-import NavBar from '../components/NavBar';
+import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, Calendar, Home, Users, DollarSign, TrendingUp, TrendingDown, Bell, Search, ChevronRight, Star, Clock, CheckCircle, XCircle, AlertCircle, Bed, CreditCard, Mail, Phone, Menu, MoreVertical, Package, MessageSquare, ClipboardList } from 'lucide-react';
 
-const LodifyDashboard = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('Last 6 Months');
-  const [reservationPeriod, setReservationPeriod] = useState('Last 7 Days');
-  const [statusFilter, setStatusFilter] = useState('All Status');
+const ModernHotelDashboard = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState('Last 6 Months');
+  const [statusFilter, setStatusFilter] = useState('All Status');
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeNavItem, setActiveNavItem] = useState('Dashboard');
-  const [showTaskModal, setShowTaskModal] = useState(false);
-  const [newTask, setNewTask] = useState('');
-  const [tasks, setTasks] = useState([
-    { id: 1, date: 'June 19, 2028', title: 'Set Up Conference Room B for 10 AM Meeting', color: 'bg-emerald-100', completed: false },
-    { id: 2, date: 'June 19, 2028', title: 'Restock Housekeeping Supplies on 3rd Floor', color: 'bg-lime-100', completed: false },
-    { id: 3, date: 'June 20, 2028', title: 'Inspect and Clean the Pool Area', color: 'bg-emerald-100', completed: false },
-    { id: 4, date: 'June 20, 2028', title: 'Check-In Assistance During Peak Hours (4 PM - 6 PM)', color: 'bg-lime-100', completed: false }
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Sample data
-  const stats = {
-    newBookings: { value: 840, change: 8.70, trend: 'up' },
-    checkIn: { value: 231, change: 3.56, trend: 'up' },
-    checkOut: { value: 124, change: 1.08, trend: 'down' },
-    totalRevenue: { value: 123980, change: 5.70, trend: 'up' }
-  };
-
-  const roomAvailability = {
-    occupied: 286,
-    reserved: 87,
-    available: 32,
-    notReady: 13
-  };
-
-  const ratings = {
-    overall: 4.6,
-    reviews: 2240,
-    facilities: 4.4,
-    cleanliness: 4.7,
-    services: 4.6,
-    comfort: 4.8,
-    location: 4.5
-  };
-
-  const bookingPlatforms = [
-    { name: 'Direct Booking', percentage: 61, color: 'bg-emerald-200' },
-    { name: 'Booking.com', percentage: 12, color: 'bg-emerald-300' },
-    { name: 'Agoda', percentage: 11, color: 'bg-lime-200' },
-    { name: 'Airbnb', percentage: 9, color: 'bg-lime-300' },
-    { name: 'Hotels.com', percentage: 5, color: 'bg-yellow-200' },
-    { name: 'Others', percentage: 2, color: 'bg-yellow-300' }
-  ];
-
-  const activities = [
-    { time: '11:45 PM', title: 'Conference Room Setup', desc: 'Events Team set up Conference Room B for 10 AM meeting, including AV equipment and refreshments.', icon: 'calendar', color: 'bg-yellow-100' },
-    { time: '11:30 AM', title: 'Guest Check-Out', desc: 'Sarah Johnson completed check-out process and updated room availability for Room 305.', icon: 'checkout', color: 'bg-emerald-100' },
-    { time: '11:00 AM', title: 'Room Cleaning Completed', desc: 'Maria Gonzales cleaned and prepared Room 204 for next guest arrival.', icon: 'clean', color: 'bg-lime-100' }
-  ];
-
-  const allBookings = [
-    { id: 'LG-B00108', guest: 'Angus Cooper', roomType: 'Deluxe', room: 'Room 101', duration: '3 nights', checkIn: 'June 19, 2028', checkOut: 'June 22, 2028', status: 'Checked-In' },
-    { id: 'LG-B00109', guest: 'Catherine Lopp', roomType: 'Standard', room: 'Room 202', duration: '2 nights', checkIn: 'June 19, 2028', checkOut: 'June 21, 2028', status: 'Checked-In' },
-    { id: 'LG-B00110', guest: 'John Smith', roomType: 'Deluxe', room: 'Room 305', duration: '4 nights', checkIn: 'June 20, 2028', checkOut: 'June 24, 2028', status: 'Reserved' },
-    { id: 'LG-B00111', guest: 'Emma Wilson', roomType: 'Standard', room: 'Room 401', duration: '1 night', checkIn: 'June 18, 2028', checkOut: 'June 19, 2028', status: 'Checked-Out' }
-  ];
-
-  const revenueData = [
-    { month: 'Dec 2027', value: 180000 },
-    { month: 'Jan 2028', value: 220000 },
-    { month: 'Feb 2028', value: 315060 },
-    { month: 'Mar 2028', value: 250000 },
-    { month: 'Apr 2028', value: 280000 },
-    { month: 'May 2028', value: 290000 }
-  ];
-
-  const reservationData = [
-    { day: '12 Jun', booked: 45, canceled: 12 },
-    { day: '13 Jun', booked: 55, canceled: 8 },
-    { day: '14 Jun', booked: 48, canceled: 15 },
-    { day: '15 Jun', booked: 62, canceled: 10 },
-    { day: '16 Jun', booked: 70, canceled: 5 },
-    { day: '17 Jun', booked: 58, canceled: 18 },
-    { day: '18 Jun', booked: 85, canceled: 12 }
-  ];
-
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0
-    }).format(value);
-  };
-
-  const filteredBookings = allBookings.filter(booking => {
-    const matchesSearch = booking.guest.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         booking.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         booking.room.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'All Status' || booking.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  // State for data from API
+  const [reservations, setReservations] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [stats, setStats] = useState({
+    totalRevenue: { value: 0, change: 0, trend: 'up' },
+    totalReservations: { value: 0, change: 0, trend: 'up' },
+    occupancyRate: { value: 0, change: 0, trend: 'up' },
+    avgRoomRate: { value: 0, change: 0, trend: 'up' }
   });
-
-  const addTask = () => {
-    if (newTask.trim()) {
-      const colors = ['bg-emerald-100', 'bg-lime-100', 'bg-yellow-100'];
-      setTasks([...tasks, {
-        id: tasks.length + 1,
-        date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
-        title: newTask,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        completed: false
-      }]);
-      setNewTask('');
-      setShowTaskModal(false);
-    }
-  };
-
-  const toggleTaskComplete = (id) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
-  };
-
-  const deleteTask = (id) => {
-    setTasks(tasks.filter(task => task.id !== id));
-  };
 
   const navItems = [
     { name: 'Dashboard', icon: LayoutDashboard },
     { name: 'Reservation', icon: Calendar },
     { name: 'Rooms', icon: Home },
-    { name: 'Messages', icon: MessageSquare, badge: 2 },
+    { name: 'Messages', icon: MessageSquare, badge: 3 },
     { name: 'Housekeeping', icon: Users },
     { name: 'Inventory', icon: Package },
     { name: 'Calendar', icon: Calendar },
@@ -138,92 +33,344 @@ const LodifyDashboard = () => {
     { name: 'Concierge', icon: ClipboardList }
   ];
 
+  // Fetch data from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+        const headers = {
+          'authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        };
+
+        // Fetch all data in parallel
+        const [reservationsRes, roomTypesRes, roomsRes] = await Promise.all([
+          fetch(`${baseURL}/api/reservations/getAllReservations`, { headers }),
+          fetch(`${baseURL}/api/room-types/getAllRoomTypes`, { headers }),
+          fetch(`${baseURL}/api/rooms/getAllRooms`, { headers })
+        ]);
+
+        const reservationsData = await reservationsRes.json();
+        const roomTypesData = await roomTypesRes.json();
+        const roomsData = await roomsRes.json();
+
+        setReservations(reservationsData.data || []);
+        setRoomTypes(roomTypesData.data || []);
+        setRooms(roomsData.data || []);
+
+        // Calculate stats
+        calculateStats(reservationsData.data || [], roomsData.data || []);
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load dashboard data');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const calculateStats = (reservationsData, roomsData) => {
+    const now = new Date();
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // Filter reservations by month
+    const thisMonthReservations = reservationsData.filter(r =>
+      new Date(r.createdAt) >= thisMonth
+    );
+    const lastMonthReservations = reservationsData.filter(r =>
+      new Date(r.createdAt) >= lastMonth && new Date(r.createdAt) < thisMonth
+    );
+
+    // Calculate revenue
+    const thisMonthRevenue = thisMonthReservations
+      .filter(r => r.paymentStatus === 'paid')
+      .reduce((sum, r) => sum + parseFloat(r.totalPrice || 0), 0);
+
+    const lastMonthRevenue = lastMonthReservations
+      .filter(r => r.paymentStatus === 'paid')
+      .reduce((sum, r) => sum + parseFloat(r.totalPrice || 0), 0);
+
+    const revenueChange = lastMonthRevenue > 0
+      ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+      : 0;
+
+    // Calculate occupancy
+    const activeRooms = roomsData.filter(r => r.isActive);
+    const occupiedRooms = reservationsData.filter(r =>
+      r.status === 'checked_in' || r.status === 'confirmed'
+    ).length;
+    const occupancyRate = activeRooms.length > 0
+      ? (occupiedRooms / activeRooms.length) * 100
+      : 0;
+
+    // Calculate average room rate
+    const paidReservations = thisMonthReservations.filter(r => r.totalPrice && r.nights);
+    const avgRate = paidReservations.length > 0
+      ? paidReservations.reduce((sum, r) => sum + (parseFloat(r.totalPrice) / r.nights), 0) / paidReservations.length
+      : 0;
+
+    const reservationChange = lastMonthReservations.length > 0
+      ? ((thisMonthReservations.length - lastMonthReservations.length) / lastMonthReservations.length) * 100
+      : 0;
+
+    setStats({
+      totalRevenue: { value: thisMonthRevenue, change: revenueChange, trend: revenueChange >= 0 ? 'up' : 'down' },
+      totalReservations: { value: thisMonthReservations.length, change: reservationChange, trend: reservationChange >= 0 ? 'up' : 'down' },
+      occupancyRate: { value: occupancyRate, change: 5.1, trend: 'up' },
+      avgRoomRate: { value: avgRate, change: 3.8, trend: 'up' }
+    });
+  };
+
+  // Process room type data with availability
+  const processedRoomTypes = roomTypes.map(type => {
+    const typeRooms = rooms.filter(r => r.roomTypeId === type.id && r.isActive);
+    const occupiedCount = reservations.filter(res =>
+      (res.status === 'checked_in' || res.status === 'confirmed') &&
+      typeRooms.some(room => room.id === res.roomId)
+    ).length;
+
+    return {
+      name: type.name,
+      available: typeRooms.length - occupiedCount,
+      total: typeRooms.length,
+      price: parseFloat(type.pricePerNight || 0),
+      occupied: occupiedCount
+    };
+  });
+
+  // Calculate payment method distribution
+  const paymentMethodCounts = reservations
+    .filter(r => r.paymentStatus === 'paid')
+    .reduce((acc, res) => {
+      const method = res.paymentMethod || 'cash';
+      acc[method] = (acc[method] || 0) + 1;
+      return acc;
+    }, {});
+
+  const totalPaid = Object.values(paymentMethodCounts).reduce((a, b) => a + b, 0);
+  const paymentMethods = Object.entries(paymentMethodCounts).map(([method, count]) => ({
+    method: method.charAt(0).toUpperCase() + method.slice(1).replace('_', ' '),
+    count,
+    percentage: totalPaid > 0 ? (count / totalPaid) * 100 : 0,
+    color: method === 'cash' ? 'bg-emerald-200' :
+      method === 'card' ? 'bg-emerald-300' :
+        method === 'esewa' ? 'bg-lime-200' :
+          method === 'khalti' ? 'bg-lime-300' : 'bg-yellow-200'
+  }));
+
+  // Generate revenue data for last 6 months
+  const generateRevenueData = () => {
+    const data = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+      const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+      const monthRevenue = reservations
+        .filter(r => {
+          const createdDate = new Date(r.createdAt);
+          return createdDate >= monthStart && createdDate <= monthEnd && r.paymentStatus === 'paid';
+        })
+        .reduce((sum, r) => sum + parseFloat(r.totalPrice || 0), 0);
+
+      data.push({
+        month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        value: monthRevenue
+      });
+    }
+    return data;
+  };
+
+  const revenueData = generateRevenueData();
+
+  // Generate recent activities from reservations
+  const generateActivities = () => {
+    const sorted = [...reservations]
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 3);
+
+    return sorted.map(res => {
+      const time = new Date(res.createdAt).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+
+      if (res.status === 'checked_in') {
+        return {
+          time,
+          title: 'Guest Check-In',
+          desc: `${res.guestName} checked in`,
+          icon: 'checkin',
+          color: 'bg-emerald-100'
+        };
+      } else if (res.paymentStatus === 'paid') {
+        return {
+          time,
+          title: 'Payment Received',
+          desc: `NPR ${parseFloat(res.totalPrice).toLocaleString()} received from ${res.guestName}`,
+          icon: 'payment',
+          color: 'bg-lime-100'
+        };
+      } else {
+        return {
+          time,
+          title: 'New Reservation',
+          desc: `${res.guestName} booked for ${res.nights} nights`,
+          icon: 'calendar',
+          color: 'bg-yellow-100'
+        };
+      }
+    });
+  };
+
+  const activities = generateActivities();
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-NP', {
+      style: 'currency',
+      currency: 'NPR',
+      minimumFractionDigits: 0
+    }).format(value);
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      confirmed: 'bg-blue-100 text-blue-800',
+      checked_in: 'bg-emerald-100 text-emerald-800',
+      checked_out: 'bg-gray-100 text-gray-800',
+      pending: 'bg-yellow-100 text-yellow-800',
+      cancelled: 'bg-red-100 text-red-800'
+    };
+    return colors[status] || colors.pending;
+  };
+
+  const getPaymentStatusColor = (status) => {
+    const colors = {
+      paid: 'bg-emerald-100 text-emerald-800',
+      unpaid: 'bg-red-100 text-red-800',
+      refunded: 'bg-gray-100 text-gray-800'
+    };
+    return colors[status] || colors.unpaid;
+  };
+
+  const filteredReservations = reservations.filter(reservation => {
+    const room = rooms.find(r => r.id === reservation.roomId);
+    const roomType = room ? roomTypes.find(rt => rt.id === room.roomTypeId) : null;
+
+    const matchesSearch = reservation.guestName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      reservation.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (roomType?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'All Status' || reservation.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-lime-400 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <AlertCircle size={48} className="text-red-500 mx-auto mb-4" />
+          <p className="text-gray-800 font-semibold mb-2">Error Loading Dashboard</p>
+          <p className="text-gray-600">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 px-6 py-2 bg-lime-500 text-white rounded-lg hover:bg-lime-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
-
-    <NavBar/>
+      {/* Sidebar */}
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-4 sticky top-0 z-10">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search room, guest, book, etc"
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-lime-400"
-                />
-              </div>
-              <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                <Bell size={20} />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-              </button>
-              <div className="flex items-center gap-3">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Jaylon" alt="Admin" className="w-10 h-10 rounded-full" />
-                <div>
-                  <div className="font-semibold text-sm">Jaylon Dorwart</div>
-                  <div className="text-xs text-gray-500">Admin</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
 
         {/* Stats Cards */}
         <div className="p-8">
           <div className="grid grid-cols-4 gap-6 mb-8">
             <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 cursor-pointer hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between mb-4">
-                <div className="text-sm text-gray-600">New Bookings</div>
-                <Calendar size={20} className="text-emerald-600" />
-              </div>
-              <div className="text-3xl font-bold mb-2">{stats.newBookings.value}</div>
-              <div className="flex items-center gap-2 text-sm">
-                <TrendingUp size={16} className="text-emerald-600" />
-                <span className="text-emerald-600 font-medium">{stats.newBookings.change}%</span>
-                <span className="text-gray-500">from last week</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="text-sm text-gray-600">Check-In</div>
-                <div className="text-emerald-600">→</div>
-              </div>
-              <div className="text-3xl font-bold mb-2">{stats.checkIn.value}</div>
-              <div className="flex items-center gap-2 text-sm">
-                <TrendingUp size={16} className="text-emerald-600" />
-                <span className="text-emerald-600 font-medium">{stats.checkIn.change}%</span>
-                <span className="text-gray-500">from last week</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
-                <div className="text-sm text-gray-600">Check-Out</div>
-                <div className="text-emerald-600">←</div>
-              </div>
-              <div className="text-3xl font-bold mb-2">{stats.checkOut.value}</div>
-              <div className="flex items-center gap-2 text-sm">
-                <TrendingDown size={16} className="text-red-500" />
-                <span className="text-red-500 font-medium">{stats.checkOut.change}%</span>
-                <span className="text-gray-500">from last week</span>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
-              <div className="flex items-start justify-between mb-4">
                 <div className="text-sm text-gray-600">Total Revenue</div>
                 <DollarSign size={20} className="text-emerald-600" />
               </div>
               <div className="text-3xl font-bold mb-2">{formatCurrency(stats.totalRevenue.value)}</div>
               <div className="flex items-center gap-2 text-sm">
+                {stats.totalRevenue.trend === 'up' ? (
+                  <TrendingUp size={16} className="text-emerald-600" />
+                ) : (
+                  <TrendingDown size={16} className="text-red-600" />
+                )}
+                <span className={`${stats.totalRevenue.trend === 'up' ? 'text-emerald-600' : 'text-red-600'} font-medium`}>
+                  {Math.abs(stats.totalRevenue.change).toFixed(1)}%
+                </span>
+                <span className="text-gray-500">from last month</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-sm text-gray-600">Reservations</div>
+                <Calendar size={20} className="text-emerald-600" />
+              </div>
+              <div className="text-3xl font-bold mb-2">{stats.totalReservations.value}</div>
+              <div className="flex items-center gap-2 text-sm">
+                {stats.totalReservations.trend === 'up' ? (
+                  <TrendingUp size={16} className="text-emerald-600" />
+                ) : (
+                  <TrendingDown size={16} className="text-red-600" />
+                )}
+                <span className={`${stats.totalReservations.trend === 'up' ? 'text-emerald-600' : 'text-red-600'} font-medium`}>
+                  {Math.abs(stats.totalReservations.change).toFixed(1)}%
+                </span>
+                <span className="text-gray-500">from last month</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-sm text-gray-600">Occupancy Rate</div>
+                <Home size={20} className="text-emerald-600" />
+              </div>
+              <div className="text-3xl font-bold mb-2">{stats.occupancyRate.value.toFixed(1)}%</div>
+              <div className="flex items-center gap-2 text-sm">
                 <TrendingUp size={16} className="text-emerald-600" />
-                <span className="text-emerald-600 font-medium">{stats.totalRevenue.change}%</span>
-                <span className="text-gray-500">from last week</span>
+                <span className="text-emerald-600 font-medium">{stats.occupancyRate.change}%</span>
+                <span className="text-gray-500">from last month</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
+              <div className="flex items-start justify-between mb-4">
+                <div className="text-sm text-gray-600">Avg. Room Rate</div>
+                <Bed size={20} className="text-emerald-600" />
+              </div>
+              <div className="text-3xl font-bold mb-2">{formatCurrency(stats.avgRoomRate.value)}</div>
+              <div className="flex items-center gap-2 text-sm">
+                <TrendingUp size={16} className="text-emerald-600" />
+                <span className="text-emerald-600 font-medium">{stats.avgRoomRate.change}%</span>
+                <span className="text-gray-500">from last month</span>
               </div>
             </div>
           </div>
@@ -232,28 +379,27 @@ const LodifyDashboard = () => {
             {/* Room Availability */}
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-lg">Room Availability</h3>
+                <h3 className="font-semibold text-lg">Room Types</h3>
                 <button className="hover:bg-gray-100 p-2 rounded transition-colors">
                   <MoreVertical size={20} className="text-gray-400" />
                 </button>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-emerald-50 rounded-lg p-4 border-l-4 border-emerald-400 cursor-pointer hover:shadow-md transition-shadow">
-                  <div className="text-sm text-gray-600 mb-1">Occupied</div>
-                  <div className="text-3xl font-bold">{roomAvailability.occupied}</div>
-                </div>
-                <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-400 cursor-pointer hover:shadow-md transition-shadow">
-                  <div className="text-sm text-gray-600 mb-1">Reserved</div>
-                  <div className="text-3xl font-bold">{roomAvailability.reserved}</div>
-                </div>
-                <div className="bg-lime-50 rounded-lg p-4 border-l-4 border-lime-400 cursor-pointer hover:shadow-md transition-shadow">
-                  <div className="text-sm text-gray-600 mb-1">Available</div>
-                  <div className="text-3xl font-bold">{roomAvailability.available}</div>
-                </div>
-                <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-gray-400 cursor-pointer hover:shadow-md transition-shadow">
-                  <div className="text-sm text-gray-600 mb-1">Not Ready</div>
-                  <div className="text-3xl font-bold">{roomAvailability.notReady}</div>
-                </div>
+              <div className="space-y-4">
+                {processedRoomTypes.map((room, i) => (
+                  <div key={i} className="bg-gray-50 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="font-medium text-sm">{room.name}</div>
+                      <div className="text-xs text-gray-500">{room.available} / {room.total}</div>
+                    </div>
+                    <div className="text-xs text-emerald-600 mb-2">{formatCurrency(room.price)}/night</div>
+                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-lime-400 to-emerald-500 rounded-full transition-all duration-500"
+                        style={{ width: `${room.total > 0 ? (room.occupied / room.total) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -261,52 +407,79 @@ const LodifyDashboard = () => {
             <div className="bg-white rounded-xl p-6 border border-gray-200 col-span-2">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-semibold text-lg">Revenue</h3>
-                <select 
+                <select
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                   className="px-4 py-2 bg-lime-100 rounded-lg text-sm font-medium border-none outline-none cursor-pointer hover:bg-lime-200 transition-colors"
                 >
                   <option>Last 6 Months</option>
                   <option>Last 3 Months</option>
-                  <option>Last Month</option>
                   <option>Last Year</option>
                 </select>
               </div>
               <div className="relative h-64">
                 <svg className="w-full h-full" viewBox="0 0 600 256">
-                  {[0, 100000, 200000, 300000, 400000].map((val, i) => (
+                  {[0, 100000, 200000, 300000].map((val, i) => (
                     <g key={i}>
-                      <line x1="40" y1={256 - (val / 400000) * 220 - 20} x2="600" y2={256 - (val / 400000) * 220 - 20} stroke="#f0f0f0" strokeWidth="1" />
-                      <text x="5" y={256 - (val / 400000) * 220 - 15} fontSize="10" fill="#999">${val/1000}k</text>
+                      <line x1="40" y1={256 - (val / 300000) * 220 - 20} x2="600" y2={256 - (val / 300000) * 220 - 20} stroke="#f0f0f0" strokeWidth="1" />
+                      <text x="5" y={256 - (val / 300000) * 220 - 15} fontSize="10" fill="#999">{val / 1000}k</text>
                     </g>
                   ))}
-                  
-                  <path
-                    d={`M 60 ${256 - (revenueData[0].value / 400000) * 220 - 20} ${revenueData.map((d, i) => `L ${60 + (i / (revenueData.length - 1)) * 520} ${256 - (d.value / 400000) * 220 - 20}`).join(' ')}`}
-                    fill="none"
-                    stroke="#84cc16"
-                    strokeWidth="3"
-                  />
-                  
-                  <path
-                    d={`M 60 ${256 - (revenueData[0].value / 400000) * 220 - 20} ${revenueData.map((d, i) => `L ${60 + (i / (revenueData.length - 1)) * 520} ${256 - (d.value / 400000) * 220 - 20}`).join(' ')} L 580 236 L 60 236 Z`}
-                    fill="url(#gradient)"
-                    opacity="0.3"
-                  />
-                  
+
+                  {revenueData.length > 1 && (
+                    <>
+                      <path
+                        d={`M 60 ${256 - (revenueData[0].value / 300000) * 220 - 20} ${revenueData.map((d, i) => `L ${60 + (i / (revenueData.length - 1)) * 520} ${256 - (d.value / 300000) * 220 - 20}`).join(' ')}`}
+                        fill="none"
+                        stroke="#84cc16"
+                        strokeWidth="3"
+                      />
+
+                      <path
+                        d={`M 60 ${256 - (revenueData[0].value / 300000) * 220 - 20} ${revenueData.map((d, i) => `L ${60 + (i / (revenueData.length - 1)) * 520} ${256 - (d.value / 300000) * 220 - 20}`).join(' ')} L 580 236 L 60 236 Z`}
+                        fill="url(#gradient)"
+                        opacity="0.3"
+                      />
+                    </>
+                  )}
+
                   <defs>
                     <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
                       <stop offset="0%" stopColor="#84cc16" />
                       <stop offset="100%" stopColor="#84cc16" stopOpacity="0" />
                     </linearGradient>
                   </defs>
-                  
-                  <circle cx={60 + (2 / 5) * 520} cy={256 - (315060 / 400000) * 220 - 20} r="6" fill="#84cc16" className="cursor-pointer" />
-                  <rect x={60 + (2 / 5) * 520 - 35} y={256 - (315060 / 400000) * 220 - 50} width="70" height="25" fill="#84cc16" rx="4" />
-                  <text x={60 + (2 / 5) * 520} y={256 - (315060 / 400000) * 220 - 32} textAnchor="middle" fontSize="12" fontWeight="bold" fill="#fff">
-                    $315,060
-                  </text>
-                  
+
+                  {revenueData.length > 0 && revenueData[revenueData.length - 1].value > 0 && (
+                    <>
+                      <circle
+                        cx={60 + ((revenueData.length - 1) / (revenueData.length - 1)) * 520}
+                        cy={256 - (revenueData[revenueData.length - 1].value / 300000) * 220 - 20}
+                        r="6"
+                        fill="#84cc16"
+                        className="cursor-pointer"
+                      />
+                      <rect
+                        x={60 + ((revenueData.length - 1) / (revenueData.length - 1)) * 520 - 35}
+                        y={256 - (revenueData[revenueData.length - 1].value / 300000) * 220 - 50}
+                        width="70"
+                        height="25"
+                        fill="#84cc16"
+                        rx="4"
+                      />
+                      <text
+                        x={60 + ((revenueData.length - 1) / (revenueData.length - 1)) * 520}
+                        y={256 - (revenueData[revenueData.length - 1].value / 300000) * 220 - 32}
+                        textAnchor="middle"
+                        fontSize="12"
+                        fontWeight="bold"
+                        fill="#fff"
+                      >
+                        {formatCurrency(revenueData[revenueData.length - 1].value)}
+                      </text>
+                    </>
+                  )}
+
                   {revenueData.map((d, i) => (
                     <text key={i} x={60 + (i / (revenueData.length - 1)) * 520} y="252" textAnchor="middle" fontSize="11" fill="#666">
                       {d.month.split(' ')[0]}
@@ -318,98 +491,27 @@ const LodifyDashboard = () => {
           </div>
 
           <div className="grid grid-cols-3 gap-6 mb-8">
-            {/* Overall Rating */}
+            {/* Payment Methods */}
             <div className="bg-white rounded-xl p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-lg">Overall Rating</h3>
-                <button className="hover:bg-gray-100 p-2 rounded transition-colors">
-                  <MoreVertical size={20} className="text-gray-400" />
-                </button>
-              </div>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="text-5xl font-bold">{ratings.overall}</div>
-                <div>
-                  <div className="flex gap-1 mb-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} size={16} fill={i < Math.floor(ratings.overall) ? "#fbbf24" : "none"} stroke="#fbbf24" />
-                    ))}
-                  </div>
-                  <div className="text-sm text-emerald-600 font-medium">Impressive</div>
-                  <div className="text-xs text-gray-500">from {ratings.reviews.toLocaleString()} reviews</div>
-                </div>
-              </div>
-              <div className="space-y-3">
-                {Object.entries({ facilities: ratings.facilities, cleanliness: ratings.cleanliness, services: ratings.services, comfort: ratings.comfort, location: ratings.location }).map(([key, value]) => (
-                  <div key={key}>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="capitalize text-gray-600">{key}</span>
-                      <span className="font-semibold">{value}</span>
-                    </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-lime-400 rounded-full transition-all duration-500" style={{ width: `${(value / 5) * 100}%` }}></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Reservations */}
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-lg">Reservations</h3>
-                <select 
-                  value={reservationPeriod}
-                  onChange={(e) => setReservationPeriod(e.target.value)}
-                  className="px-4 py-2 bg-lime-100 rounded-lg text-sm font-medium border-none outline-none cursor-pointer hover:bg-lime-200 transition-colors"
-                >
-                  <option>Last 7 Days</option>
-                  <option>Last 14 Days</option>
-                  <option>Last 30 Days</option>
-                </select>
-              </div>
-              <div className="h-48 flex items-end justify-between gap-1">
-                {reservationData.map((data, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1 group cursor-pointer">
-                    <div className="w-full bg-lime-200 rounded-t transition-all group-hover:bg-lime-300" style={{ height: `${(data.booked / 100) * 100}%` }}></div>
-                    <div className="w-full bg-emerald-100 rounded-t transition-all group-hover:bg-emerald-200" style={{ height: `${(data.canceled / 100) * 100}%` }}></div>
-                    <div className="text-xs text-gray-500 mt-2">{data.day.split(' ')[0]}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex items-center justify-center gap-6 mt-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-lime-200 rounded"></div>
-                  <span className="text-gray-600">Booked</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-emerald-100 rounded"></div>
-                  <span className="text-gray-600">Canceled</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Booking by Platform */}
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-lg">Booking by Platform</h3>
+                <h3 className="font-semibold text-lg">Payment Methods</h3>
                 <button className="hover:bg-gray-100 p-2 rounded transition-colors">
                   <MoreVertical size={20} className="text-gray-400" />
                 </button>
               </div>
               <div className="relative w-48 h-48 mx-auto mb-6">
                 <svg viewBox="0 0 100 100" className="transform -rotate-90">
-                  {bookingPlatforms.reduce((acc, platform, i) => {
+                  {paymentMethods.reduce((acc, platform, i) => {
                     const prevPercentage = acc.total;
                     const strokeDasharray = `${platform.percentage} ${100 - platform.percentage}`;
                     const strokeDashoffset = -prevPercentage;
                     acc.total += platform.percentage;
-                    
+
                     const strokeColor = platform.color.includes('emerald-200') ? '#a7f3d0' :
-                                       platform.color.includes('emerald-300') ? '#6ee7b7' :
-                                       platform.color.includes('lime-200') ? '#d9f99d' :
-                                       platform.color.includes('lime-300') ? '#bef264' :
-                                       platform.color.includes('yellow-200') ? '#fef08a' : '#fde047';
-                    
+                      platform.color.includes('emerald-300') ? '#6ee7b7' :
+                        platform.color.includes('lime-200') ? '#d9f99d' :
+                          platform.color.includes('lime-300') ? '#bef264' : '#fef08a';
+
                     acc.circles.push(
                       <circle
                         key={i}
@@ -429,56 +531,17 @@ const LodifyDashboard = () => {
                 </svg>
               </div>
               <div className="space-y-2">
-                {bookingPlatforms.map((platform, i) => (
+                {paymentMethods.length > 0 ? paymentMethods.map((platform, i) => (
                   <div key={i} className="flex items-center justify-between text-sm hover:bg-gray-50 p-2 rounded cursor-pointer transition-colors">
                     <div className="flex items-center gap-2">
                       <div className={`w-3 h-3 rounded-full ${platform.color}`}></div>
-                      <span className="text-gray-600">{platform.name}</span>
+                      <span className="text-gray-600">{platform.method}</span>
                     </div>
-                    <span className="font-semibold">{platform.percentage}%</span>
+                    <span className="font-semibold">{platform.percentage.toFixed(1)}%</span>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            {/* Tasks */}
-            <div className="bg-white rounded-xl p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="font-semibold text-lg">Tasks</h3>
-                <button 
-                  onClick={() => setShowTaskModal(true)}
-                  className="w-8 h-8 bg-lime-100 rounded-lg flex items-center justify-center hover:bg-lime-200 transition-colors"
-                >
-                  <Plus size={20} className="text-lime-700" />
-                </button>
-              </div>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {tasks.map((task) => (
-                  <div key={task.id} className={`${task.color} rounded-lg p-4 relative group ${task.completed ? 'opacity-50' : ''}`}>
-                    <div className="flex items-start gap-2">
-                      <button
-                        onClick={() => toggleTaskComplete(task.id)}
-                        className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-                          task.completed ? 'bg-emerald-500 border-emerald-500' : 'border-gray-300 hover:border-emerald-500'
-                        }`}
-                      >
-                        {task.completed && <Check size={14} className="text-white" />}
-                      </button>
-                      <div className="flex-1">
-                        <div className="text-xs text-gray-600 mb-1">{task.date}</div>
-                        <div className={`text-sm font-medium pr-6 ${task.completed ? 'line-through' : ''}`}>{task.title}</div>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => deleteTask(task.id)}
-                      className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 hover:bg-red-100 p-1 rounded transition-all"
-                    >
-                      <X size={16} className="text-red-600" />
-                    </button>
-                  </div>
-                ))}
+                )) : (
+                  <p className="text-center text-gray-500 py-4">No payment data available</p>
+                )}
               </div>
             </div>
 
@@ -490,13 +553,13 @@ const LodifyDashboard = () => {
                   <MoreVertical size={20} className="text-gray-400" />
                 </button>
               </div>
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {activities.map((activity, i) => (
+              <div className="space-y-4">
+                {activities.length > 0 ? activities.map((activity, i) => (
                   <div key={i} className="flex gap-4 hover:bg-gray-50 p-2 rounded transition-colors">
                     <div className={`w-10 h-10 ${activity.color} rounded-lg flex items-center justify-center flex-shrink-0`}>
                       {activity.icon === 'calendar' && <Calendar size={20} className="text-yellow-700" />}
-                      {activity.icon === 'checkout' && <span className="text-emerald-700 font-bold">→</span>}
-                      {activity.icon === 'clean' && <Home size={20} className="text-lime-700" />}
+                      {activity.icon === 'checkin' && <span className="text-emerald-700 font-bold">→</span>}
+                      {activity.icon === 'payment' && <DollarSign size={20} className="text-lime-700" />}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-start justify-between mb-1">
@@ -506,7 +569,9 @@ const LodifyDashboard = () => {
                       <div className="text-sm text-gray-600">{activity.desc}</div>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-center text-gray-500 py-4">No recent activities</p>
+                )}
               </div>
             </div>
           </div>
@@ -514,7 +579,7 @@ const LodifyDashboard = () => {
           {/* Booking List */}
           <div className="bg-white rounded-xl p-6 border border-gray-200">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="font-semibold text-lg">Booking List</h3>
+              <h3 className="font-semibold text-lg">Recent Reservations</h3>
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -526,15 +591,17 @@ const LodifyDashboard = () => {
                     className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
                   />
                 </div>
-                <select 
+                <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="px-4 py-2 bg-yellow-100 rounded-lg text-sm font-medium border-none outline-none cursor-pointer hover:bg-yellow-200 transition-colors"
                 >
                   <option>All Status</option>
-                  <option>Checked-In</option>
-                  <option>Checked-Out</option>
-                  <option>Reserved</option>
+                  <option>checked_in</option>
+                  <option>checked_out</option>
+                  <option>confirmed</option>
+                  <option>pending</option>
+                  <option>cancelled</option>
                 </select>
               </div>
             </div>
@@ -544,44 +611,54 @@ const LodifyDashboard = () => {
                   <tr className="border-b border-gray-200">
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Booking ID</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Guest Name</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Contact</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Room Type</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Room Number</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Duration</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Check-In & Check-Out</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Check-In</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Status</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">Payment</th>
+                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-600">Amount</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredBookings.length > 0 ? (
-                    filteredBookings.map((booking) => (
-                      <tr key={booking.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer">
-                        <td className="py-4 px-4 text-sm font-mono">{booking.id}</td>
-                        <td className="py-4 px-4 text-sm font-medium">{booking.guest}</td>
-                        <td className="py-4 px-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            booking.roomType === 'Deluxe' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'
-                          }`}>
-                            {booking.roomType}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4 text-sm">{booking.room}</td>
-                        <td className="py-4 px-4 text-sm">{booking.duration}</td>
-                        <td className="py-4 px-4 text-sm">{booking.checkIn} - {booking.checkOut}</td>
-                        <td className="py-4 px-4">
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            booking.status === 'Checked-In' ? 'bg-emerald-100 text-emerald-800' :
-                            booking.status === 'Checked-Out' ? 'bg-gray-100 text-gray-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {booking.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
+                  {filteredReservations.length > 0 ? (
+                    filteredReservations.map((booking) => {
+                      const room = rooms.find(r => r.id === booking.roomId);
+                      const roomType = room ? roomTypes.find(rt => rt.id === room.roomTypeId) : null;
+
+                      return (
+                        <tr key={booking.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer">
+                          <td className="py-4 px-4 text-sm font-mono text-gray-600">{booking.id.substring(0, 8)}</td>
+                          <td className="py-4 px-4">
+                            <div className="font-medium text-sm">{booking.guestName}</div>
+                            <div className="text-xs text-gray-500">{booking.guestEmail}</div>
+                          </td>
+                          <td className="py-4 px-4 text-sm text-gray-600">{booking.guestContact}</td>
+                          <td className="py-4 px-4">
+                            <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              {roomType?.name || 'Unknown'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-sm">{booking.nights} nights</td>
+                          <td className="py-4 px-4 text-sm">{new Date(booking.checkInDate).toLocaleDateString()}</td>
+                          <td className="py-4 px-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                              {booking.status.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPaymentStatusColor(booking.paymentStatus)}`}>
+                              {booking.paymentStatus}
+                            </span>
+                          </td>
+                          <td className="py-4 px-4 text-right font-semibold">{formatCurrency(booking.totalPrice)}</td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
-                      <td colSpan="7" className="py-8 text-center text-gray-500">
-                        No bookings found matching your search
+                      <td colSpan="9" className="py-8 text-center text-gray-500">
+                        No reservations found matching your search
                       </td>
                     </tr>
                   )}
@@ -591,48 +668,8 @@ const LodifyDashboard = () => {
           </div>
         </div>
       </div>
-
-      {/* Task Modal */}
-      {showTaskModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-96 shadow-2xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Add New Task</h3>
-              <button 
-                onClick={() => setShowTaskModal(false)}
-                className="hover:bg-gray-100 p-1 rounded transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <input
-              type="text"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addTask()}
-              placeholder="Enter task description..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400 mb-4"
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={addTask}
-                className="flex-1 bg-lime-500 text-white py-2 rounded-lg hover:bg-lime-600 transition-colors font-medium"
-              >
-                Add Task
-              </button>
-              <button
-                onClick={() => setShowTaskModal(false)}
-                className="flex-1 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition-colors font-medium"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default LodifyDashboard;
+export default ModernHotelDashboard;
