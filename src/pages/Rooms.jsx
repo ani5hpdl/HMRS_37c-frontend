@@ -73,340 +73,349 @@ const HotelManagementSystem = () => {
     fetchRooms();
   }, []);
 
-  // Filtering + sorting in a memo for performance
-  useEffect(() => {
-    let list = [...allRooms];
+  const filteredRooms = useMemo(() => {
+    let data = [...rooms];
 
-    if (query.trim()) {
-      const q = query.toLowerCase();
-      list = list.filter((r) => r.RoomType?.name?.toLowerCase().includes(q) || r.RoomType?.description?.toLowerCase().includes(q));
+    // 🔍 Search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      data = data.filter(room =>
+        room.name.toLowerCase().includes(q) ||
+        room.bedType.toLowerCase().includes(q) ||
+        room.description.toLowerCase().includes(q)
+      );
     }
 
-    if (maxPrice) {
-      const max = Number(maxPrice);
-      if (!isNaN(max)) {
-        list = list.filter((r) => Number(r.RoomType?.pricePerNight ?? 0) <= max);
-      }
+    // 🎯 Filter
+    if (filterType !== "all") {
+      data = data.filter(room =>
+        filterType === "available"
+          ? room.status === "Available"
+          : room.status === "Occupied"
+      );
     }
 
-    if (sort === "price-asc") {
-      list.sort((a, b) => Number(a.RoomType?.pricePerNight ?? 0) - Number(b.RoomType?.pricePerNight ?? 0));
-    } else if (sort === "price-desc") {
-      list.sort((a, b) => Number(b.RoomType?.pricePerNight ?? 0) - Number(a.RoomType?.pricePerNight ?? 0));
-    } // recommended leaves API order
+    // ↕️ Sort
+    switch (sortBy) {
+      case "price-low":
+        data.sort((a, b) => a.price - b.price);
+        break;
+      case "price-high":
+        data.sort((a, b) => b.price - a.price);
+        break;
+      case "size":
+        data.sort((a, b) => b.size - a.size);
+        break;
+      default:
+        break;
+    }
 
-    setFiltered(list);
-  }, [allRooms, query, maxPrice, sort]);
+    return data;
+  }, [rooms, searchQuery, filterType, sortBy]);
 
-  const formatPrice = (val) => {
-    if (val == null) return "-";
-    return Number(val).toLocaleString("en-NP");
-  };
+  if (loading) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-lime-400 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading rooms...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const openDetails = (room) => {
-    setSelectedRoom(room);
-    setModalImageIndex(0);
-    // small delay to focus modal if needed
-  };
-
-  const closeDetails = () => {
-    setSelectedRoom(null);
-  };
-
-  const carouselImagesForRoom = (room) => {
-    // If API supplies images, use them. Otherwise cycle placeholder images.
-    if (room?.images && room.images.length) return room.images;
-    // create deterministic pseudo-list from id
-    const idx = allRooms.findIndex((r) => r.id === room.id);
-    return [
-      roomImages[idx % roomImages.length],
-      roomImages[(idx + 1) % roomImages.length],
-      roomImages[(idx + 2) % roomImages.length],
-    ];
-  };
+  if (error) {
+    return (
+      <div className="flex h-screen bg-gray-100">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-red-500 text-xl mb-4">⚠️</div>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={fetchRooms}
+              className="px-4 py-2 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      {/* Hero */}
-      <header
-        className="relative h-96 md:h-[520px] flex items-center"
-        style={{
-          backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url(${heroImg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="container mx-auto px-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl text-white"
-          >
-            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight drop-shadow-lg">
-              Discover Exceptional Stays
-            </h1>
-            <p className="mt-4 text-lg md:text-xl text-gray-100/90">
-              Curated rooms with modern amenities, personalized service, and stunning views.
-            </p>
+    <div className="flex h-screen bg-gray-100">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="flex h-full">
+          {/* Room List */}
+          <div className="flex-1 p-6 bg-gray-50">
 
-            <div className="mt-6 flex items-center gap-4">
-              <motion.div whileHover={{ scale: 1.03 }}>
-                <BookNowButton className="bg-amber-400 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-amber-500" />
-              </motion.div>
-
-              <a
-                href="#rooms-grid"
-                className="inline-flex items-center gap-2 text-white/90 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg"
-              >
-                View Rooms
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </header>
-
-      {/* Filters */}
-      <section className="container mx-auto mt-6 px-6 -mt-10">
-<div className="bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col md:flex-row gap-4 items-center">
-  <div className="flex items-center gap-3 flex-1">
-    <div className="relative w-full md:max-w-md">
-      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-      <input
-        aria-label="Search rooms"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search by name or description"
-        className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition"
-      />
-    </div>
-
-    <div className="hidden md:block border-l border-gray-300 h-8 mx-3" />
-
-    <div className="flex items-center gap-3">
-      <label className="text-sm font-medium text-gray-700">Max Price</label>
-      <input
-        aria-label="Max price"
-        type="number"
-        value={maxPrice}
-        onChange={(e) => setMaxPrice(e.target.value)}
-        placeholder="e.g., 8000"
-        className="w-28 px-3 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition"
-      />
-    </div>
-  </div>
-
-  <div className="flex items-center gap-3">
-    <label className="text-sm font-medium text-gray-700 mr-2">Sort:</label>
-    <div className="relative">
-      <FaSortAmountDown className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-      <select
-        aria-label="Sort rooms"
-        value={sort}
-        onChange={(e) => setSort(e.target.value)}
-        className="pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-amber-300 focus:border-amber-400 transition"
-      >
-        <option value="recommended">Recommended</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-      </select>
-    </div>
-  </div>
-</div>
-
-      </section>
-
-      {/* Rooms Grid */}
-      <main id="rooms-grid" className="container mx-auto px-6 py-12">
-        {loading ? (
-          // simple skeletons
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse bg-white rounded-xl p-4 shadow">
-                <div className="h-40 bg-gray-200 rounded-md mb-4" />
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-1/2 mb-4" />
-                <div className="h-8 bg-gray-200 rounded w-full" />
+            {/* Search and Filters */}
+            <div className="flex gap-3 mb-6">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-3 text-gray-400" size={16} />
+                <input
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  placeholder="Search rooms..."
+                  className="w-full pl-10 py-2 border rounded-lg"
+                />
               </div>
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-xl shadow p-8 text-center">
-            <h3 className="text-xl font-semibold text-gray-800">No rooms found</h3>
-            <p className="mt-2 text-gray-600">Try clearing filters or try again later.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filtered.map((room, idx) => {
-              const roomType = room.RoomType || {};
-              const image = roomImages[idx % roomImages.length];
-              const amenities = roomType.RoomAmenity || {};
 
-              return (
-                <motion.article
-                  key={room.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: idx * 0.06 }}
-                  className="bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col"
-                >
-                  <div className="relative">
-                    <img src={image} alt={roomType.name} className="w-full h-48 object-cover" />
-                    <div className="absolute top-4 left-4 bg-amber-400 text-white px-3 py-1 rounded-lg font-semibold shadow">
-                      {formatPrice(roomType.pricePerNight)} NPR
-                    </div>
-                    <div className="absolute top-4 right-4 bg-white/80 text-gray-800 px-2 py-1 rounded-lg flex items-center gap-1">
-                      <FaStar className="text-amber-400" /> <span className="text-sm">4.8</span>
-                    </div>
-                  </div>
+              <select
+                value={sortBy}
+                onChange={e => setSortBy(e.target.value)}
+                className="border px-4 rounded-lg"
+              >
+                <option value="popular">Popular</option>
+                <option value="price-low">Price: Low → High</option>
+                <option value="price-high">Price: High → Low</option>
+                <option value="size">Size</option>
+              </select>
 
-                  <div className="p-5 flex-1 flex flex-col">
-                    <h3 className="text-xl font-semibold text-gray-900">{roomType.name}</h3>
-                    <p className="mt-2 text-gray-600 line-clamp-3">{roomType.description}</p>
+              <select
+                value={filterType}
+                onChange={e => setFilterType(e.target.value)}
+                className="border px-4 rounded-lg"
+              >
+                <option value="all">All</option>
+                <option value="available">Available</option>
+                <option value="occupied">Occupied</option>
+              </select>
 
-                    <div className="mt-4 flex flex-wrap gap-2">
-                      {Object.entries(amenities)
-                        .filter(([k, v]) => v === true)
-                        .slice(0, 4)
-                        .map(([k]) => (
-                          <span
-                            key={k}
-                            className="bg-amber-50 text-amber-700 text-sm px-3 py-1 rounded-full flex items-center"
-                          >
-                            {amenityIcons[k] || null}
-                            <span className="ml-1">{k.replace(/([A-Z])/g, " $1")}</span>
-                          </span>
-                        ))}
-                    </div>
+              <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onClick={() => setShowModal(true)}
+              >
+                <Plus size={18} />
+                Add Rooms
+              </button>
+            </div>
 
-                    <div className="mt-6 flex items-center justify-between">
-                      <div>
-                        <button
-                          onClick={() => openDetails(room)}
-                          className="text-amber-600 font-semibold hover:underline"
-                          aria-label={`View details for ${roomType.name}`}
+            {/* Room Cards */}
+            <div className="space-y-4">
+              {filteredRooms.length === 0 ? (
+                <div className="text-center text-gray-500 py-20">
+                  No rooms found
+                </div>
+              ) : (
+                filteredRooms.map(room => (
+                  <div
+                    key={room.id}
+                    onClick={() => setSelectedRoom(room)}
+                    className="bg-white p-4 rounded-xl flex gap-4 cursor-pointer hover:shadow"
+                  >
+                    <img
+                      src={room.image}
+                      alt={room.name}
+                      className="w-32 h-24 rounded-lg object-cover"
+                    />
+
+                    <div className="flex-1">
+                      <div className="flex justify-between">
+                        <h3 className="font-bold">{room.name}</h3>
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full ${room.status === "Available"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                            }`}
                         >
-                          View details
-                        </button>
+                          {room.status}
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <motion.div whileHover={{ scale: 1.03 }}>
-                          <BookNowButton />
-                        </motion.div>
+                      <div className="text-xs text-gray-500 flex gap-4 mt-1">
+                        <span><Home size={12} /> {room.size} m²</span>
+                        <span><Bed size={12} /> {room.bedType}</span>
+                        <span><User size={12} /> {room.guests}</span>
+                      </div>
+
+                      <div className="mt-3 font-semibold">
+                        ${room.price} / night
                       </div>
                     </div>
                   </div>
-                </motion.article>
-              );
-            })}
+                ))
+              )}
+            </div>
           </div>
-        )}
-      </main>
 
-      {/* Details Modal */}
-      {selectedRoom && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-        >
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={closeDetails}
-            aria-hidden="true"
-          />
+          {/* Room Detail Sidebar */}
+          {selectedRoom && (
+            <div className="w-96 bg-white border-l border-gray-200 overflow-auto shadow-lg">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">Room Detail</h2>
+                  <button
+                    onClick={() => {
+                      setRoomToEdit(selectedRoom); // Pass the current room object
+                      setShowEditModal(true);
+                    }}
+                    className="px-4 py-2 bg-lime-400 hover:bg-lime-500 rounded-lg font-semibold transition-colors text-sm text-gray-800"
+                  >
+                    Edit
+                  </button>
+                </div>
 
-          <motion.div
-            initial={{ scale: 0.96, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.25 }}
-            className="relative bg-white rounded-2xl shadow-2xl max-w-4xl w-full overflow-hidden"
-          >
-            <div className="flex flex-col md:flex-row">
-              {/* Left: carousel */}
-              <div className="md:w-1/2 relative bg-gray-100">
-                <img
-                  src={carouselImagesForRoom(selectedRoom)[modalImageIndex]}
-                  alt={selectedRoom.RoomType?.name}
-                  className="w-full h-80 md:h-full object-cover"
+                <EditRoomModal
+                  showEditRoomModal={showEditModal}
+                  setShowEditRoomModal={setShowEditModal}
+                  roomToEdit={selectedRoom}
+                  onRoomUpdated={() => {
+                    console.log('Room updated!');
+                    // Refresh your rooms list here
+                  }}
                 />
 
-                <button
-                  onClick={() =>
-                    setModalImageIndex((i) =>
-                      i === 0 ? carouselImagesForRoom(selectedRoom).length - 1 : i - 1
-                    )
-                  }
-                  className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow hover:bg-white"
-                  aria-label="Previous image"
-                >
-                  <FaChevronLeft />
-                </button>
-                <button
-                  onClick={() =>
-                    setModalImageIndex((i) => (i + 1) % carouselImagesForRoom(selectedRoom).length)
-                  }
-                  className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow hover:bg-white"
-                  aria-label="Next image"
-                >
-                  <FaChevronRight />
-                </button>
-              </div>
-
-              {/* Right: details */}
-              <div className="md:w-1/2 p-6 flex flex-col">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {selectedRoom.RoomType?.name}
-                    </h2>
-                    <p className="mt-1 text-amber-600 font-semibold">
-                      {formatPrice(selectedRoom.RoomType?.pricePerNight)} NPR / night
-                    </p>
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-bold text-gray-800">{selectedRoom.name} Room</h3>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedRoom.status === 'Available'
+                        ? 'bg-teal-50 text-teal-700'
+                        : 'bg-yellow-50 text-yellow-700'
+                      }`}>
+                      {selectedRoom.status}
+                    </span>
                   </div>
-
-                  <button
-                    onClick={closeDetails}
-                    className="text-gray-500 hover:text-gray-700"
-                    aria-label="Close details"
-                  >
-                    ✕
-                  </button>
+                  <p className="text-sm text-gray-600">Occupied: <span className="font-semibold">{selectedRoom.availability.occupied}/{selectedRoom.availability.total} Rooms</span></p>
                 </div>
 
-                <div className="mt-4 flex-1 overflow-auto">
-                  <p className="text-gray-700">{selectedRoom.RoomType?.description}</p>
-
-                  <h4 className="mt-4 text-sm font-semibold text-gray-800">Amenities</h4>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {Object.entries(selectedRoom.RoomType?.RoomAmenity || {})
-                      .filter(([k, v]) => v === true)
-                      .map(([k]) => (
-                        <span key={k} className="px-3 py-1 bg-gray-100 rounded-full text-sm flex items-center gap-2">
-                          {amenityIcons[k] || null}
-                          {k.replace(/([A-Z])/g, " $1")}
-                        </span>
-                      ))}
+                <div className="mb-6">
+                  <img
+                    src={selectedRoom.image}
+                    alt={selectedRoom.name}
+                    className="w-full h-56 object-cover rounded-lg mb-3 cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setShowImageGallery(true)}
+                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    {selectedRoom.gallery.slice(1, 3).map((img, idx) => (
+                      <img
+                        key={idx}
+                        src={img}
+                        className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setShowImageGallery(true)}
+                      />
+                    ))}
+                    <div
+                      className="relative cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => setShowImageGallery(true)}
+                    >
+                      <img src={selectedRoom.gallery[3]} className="w-full h-24 object-cover rounded-lg" />
+                      <div className="absolute inset-0 bg-lime-400 bg-opacity-90 rounded-lg flex items-center justify-center">
+                        <span className="font-bold text-gray-800 text-sm">View All</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center gap-3">
-                  <BookNowButton />
-                  <button
-                    onClick={closeDetails}
-                    className="px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50"
-                  >
-                    Back
-                  </button>
+                <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="grid grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <div className="flex items-center gap-1 text-gray-600 mb-1">
+                        <Home size={14} />
+                      </div>
+                      <div className="font-semibold text-gray-800">{selectedRoom.size} m²</div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 text-gray-600 mb-1">
+                        <Bed size={14} />
+                      </div>
+                      <div className="font-semibold text-gray-800">{selectedRoom.bedType}</div>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1 text-gray-600 mb-1">
+                        <User size={14} />
+                      </div>
+                      <div className="font-semibold text-gray-800">{selectedRoom.guests} guests</div>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-600 mb-6 leading-relaxed">{selectedRoom.description}</p>
+
+                <div className="mb-6">
+                  <h4 className="font-bold mb-3 text-gray-800">Features</h4>
+                  <div className="space-y-2">
+                    {selectedRoom.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-sm">
+                        <div className="w-5 h-5 rounded bg-teal-50 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <svg className="w-3 h-3 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <span className="text-gray-700 leading-relaxed">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mb-6">
+                  <h4 className="font-bold mb-3 text-gray-800">Facilities</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Wifi size={16} className="text-gray-500" />
+                      <span>High-speed Wi-Fi</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Lock size={16} className="text-gray-500" />
+                      <span>In-room safe</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Tv size={16} className="text-gray-500" />
+                      <span>Flat-screen TV</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Wind size={16} className="text-gray-500" />
+                      <span>Air conditioning</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Package size={16} className="text-gray-500" />
+                      <span>Mini-fridge</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-700">
+                      <Coffee size={16} className="text-gray-500" />
+                      <span>Coffee/tea maker</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="font-bold mb-3 text-gray-800">Amenities</h4>
+                  <div className="space-y-2">
+                    {selectedRoom.amenities.map((amenity, idx) => (
+                      <div key={idx} className="flex items-start gap-2 text-sm">
+                        <div className="w-5 h-5 rounded bg-teal-50 flex items-center justify-center mt-0.5 flex-shrink-0">
+                          <svg className="w-3 h-3 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <span className="text-gray-700 leading-relaxed">{amenity}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* Add Room Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <AddRoomModal
+              showAddRoomModal={showModal}
+              setShowAddRoomModal={setShowModal}
+              onRoomAdded={() => console.log('Room added!')}
+            />
+          </div>
         </div>
       )}
     </div>
   );
 };
 
-export default Rooms;
+export default HotelManagementSystem;

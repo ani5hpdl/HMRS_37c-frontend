@@ -4,6 +4,7 @@ import NavBar from '../components/NavBar';
 import toast from 'react-hot-toast';
 import { getReservations, updateReservation, deleteReservation } from '../services/api';
 import { ReservationCreationModal, RoomReservationsModal } from '../components/ReservationCreation';
+import AdminNav from '../components/AdminNav';
 
 const AdminReservationManagement = () => {
   const [reservations, setReservations] = useState([]);
@@ -227,7 +228,7 @@ const AdminReservationManagement = () => {
           roomId={selectedRoomForView?.id}
           roomNumber={selectedRoomForView?.number}
         />
-      <NavBar
+      <AdminNav
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />

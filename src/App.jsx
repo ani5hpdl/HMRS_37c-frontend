@@ -21,13 +21,14 @@ import NavBar from "./components/NavBar";
 import Header from "./components/Header";
 import ProtectedRoute from './protected/ProtectedRoute';
 import NotFoundPage from './pages/Error';
+import AdminNav from './components/AdminNav';
 
 const MainLayout = ({ header, children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
     <div className="flex min-h-screen  bg-gray-50">
-      <NavBar
+      <AdminNav
         isSidebarOpen={isSidebarOpen}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
