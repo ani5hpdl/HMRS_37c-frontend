@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChevronDown, Calendar as CalendarIcon, Users } from 'lucide-react';
-import axios from 'axios';
-import { createReservation, getAllRooms } from '../services/api';
+
+// REPLACE THESE WITH YOUR ACTUAL API IMPORTS
+import { createReservation, getAllRooms, getRoomTypes } from '../services/api';
 
 const RoomSelector = () => {
   const [selectedSuite, setSelectedSuite] = useState(null);
@@ -20,16 +21,35 @@ const RoomSelector = () => {
   });
 
   const [filters, setFilters] = useState({
-    suites: 'All Rooms',
-    deluxe: 'Deluxe',
-    oceanView: 'Ocean View',
-    priceRange: 'Price Range'
+    roomType: 'All',
+    viewType: 'All',
+    priceRange: 'All'
   });
 
-  // Sample room data
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [roomTypes, setRoomTypes] = useState([]);
+  const [views, setViews] = useState([]);
+
+  // Helper function to extract features from room amenities
+  // const getFeaturesList = (roomType) => {
+  //   const features = [];
+  //   const amenity = roomType.RoomAmenity;
+
+  //   if (amenity) {
+  //     if (amenity.wifi) features.push('High-speed Wi-Fi included');
+  //     if (amenity.airConditioning) features.push('Climate-controlled air conditioning');
+  //     if (amenity.flatScreenTV) features.push('Flat-screen TV with premium channels');
+  //     if (amenity.miniFridge) features.push('Mini refrigerator stocked daily');
+  //     if (amenity.coffeeTeaMaker) features.push('Nespresso machine & premium tea selection');
+  //     if (amenity.ensuiteBathroom) features.push('Luxury ensuite bathroom with premium toiletries');
+  //   }
+
+  //   if (roomType.viewType) features.push(`${roomType.viewType} view`);
+
+  //   return features.length > 0 ? features : ['Comfortable accommodation with modern amenities'];
+  // };
 
   // Fetch rooms from API
   useEffect(() => {
@@ -41,16 +61,18 @@ const RoomSelector = () => {
         if (response.data.success) {
           // Transform API data to match component structure
           const transformedRooms = response.data.data.map((room) => ({
-            id: room.id,
-            name: room.RoomType.name,
-            size: room.RoomType.roomSize,
-            bedType: room.RoomType.bedType,
-            adults: room.maxGuests,
-            features: getFeaturesList(room.RoomType),
-            price: parseFloat(room.RoomType.pricePerNight),
-            image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop', // Default image
-            bestSeller: false // You can add logic to determine best sellers
-          }));
+  id: room.id,
+  name: room.RoomType.name,
+  size: room.RoomType.roomSize,
+  bedType: room.RoomType.bedType,
+  adults: room.maxGuests,
+  price: parseFloat(room.RoomType.pricePerNight),
+  viewType: room.RoomType.viewType,
+  amenities: room.RoomType.amenities, // ✅ KEEP THIS
+  image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
+  bestSeller: room.id === 1
+}));
+
           setRooms(transformedRooms);
         }
       } catch (error) {
@@ -64,24 +86,70 @@ const RoomSelector = () => {
     fetchRooms();
   }, []);
 
-  // Helper function to extract features from room amenities
-  const getFeaturesList = (roomType) => {
-    const features = [];
-    const amenity = roomType.RoomAmenity;
+  useEffect(() => {
+    const fetchFilterData = async () => {
+      try {
+        const res = await getRoomTypes();
 
-    if (amenity) {
-      if (amenity.wifi) features.push('High-speed Wi-Fi included');
-      if (amenity.airConditioning) features.push('Climate-controlled air conditioning');
-      if (amenity.flatScreenTV) features.push('Flat-screen TV with premium channels');
-      if (amenity.miniFridge) features.push('Mini refrigerator stocked daily');
-      if (amenity.coffeeTeaMaker) features.push('Nespresso machine & premium tea selection');
-      if (amenity.ensuiteBathroom) features.push('Luxury ensuite bathroom with premium toiletries');
+        if (res.data.success) {
+          setRoomTypes(res.data.data);
+
+          // Extract unique view types
+          const uniqueViews = [
+            ...new Set(res.data.data.map(rt => rt.viewType).filter(Boolean))
+          ];
+          setViews(uniqueViews);
+        }
+      } catch (err) {
+        console.error("Failed to load filter data", err);
+      }
+    };
+
+    fetchFilterData();
+  }, []);
+
+  const getAmenitiesList = (amenities) => {
+  if (!amenities) return [];
+
+  const AMENITY_LABELS = {
+    wifi: "Free Wi-Fi",
+    airConditioning: "Air Conditioning",
+    flatScreenTV: "Flat Screen TV",
+    miniFridge: "Mini Fridge",
+    coffeeTeaMaker: "Coffee / Tea Maker",
+    ensuiteBathroom: "Ensuite Bathroom",
+    bathtub: "Bathtub",
+    hasBalcony: "Balcony",
+    hasWorkDesk: "Work Desk",
+  };
+
+  return Object.entries(amenities)
+    .filter(([_, value]) => value === true)
+    .map(([key]) => AMENITY_LABELS[key]);
+};
+
+
+  const filteredRooms = rooms.filter(room => {
+    // Room Type
+    if (filters.roomType !== 'All' && room.name !== filters.roomType) {
+      return false;
     }
 
-    if (roomType.viewType) features.push(`${roomType.viewType} view`);
+    // View Type
+    if (filters.viewType !== 'All' && room.viewType !== filters.viewType) {
+      return false;
+    }
 
-    return features.length > 0 ? features : ['Comfortable accommodation with modern amenities'];
-  };
+    // Price Range
+    if (filters.priceRange !== 'All') {
+      const price = room.price;
+      if (filters.priceRange === '0-150' && price >= 150) return false;
+      if (filters.priceRange === '150-300' && (price < 150 || price > 300)) return false;
+      if (filters.priceRange === '300+' && price <= 300) return false;
+    }
+
+    return true;
+  });
 
   const [reservation, setReservation] = useState({
     checkIn: '',
@@ -136,70 +204,69 @@ const RoomSelector = () => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 
-const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedEnd }) => {
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDay = new Date(year, month, 1).getDay();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedEnd }) => {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const days = [];
+    const days = [];
 
-  // Empty spaces for first day
-  for (let i = 0; i < firstDay; i++) {
-    days.push(
-      <div key={`empty-${i}`} className="w-full h-10"></div>
-    );
-  }
+    // Empty spaces for first day
+    for (let i = 0; i < firstDay; i++) {
+      days.push(
+        <div key={`empty-${i}`} className="w-full h-10"></div>
+      );
+    }
 
-  // Day buttons
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month, day);
-    const dateStr = date.toISOString().split('T')[0];
-    const isPast = date < today;
-    const isSelected = dateStr === selectedStart || dateStr === selectedEnd;
-    const isInRange = selectedStart && selectedEnd && dateStr > selectedStart && dateStr < selectedEnd;
-    const isDisabled = isPast || (selectingCheckOut && selectedStart && dateStr <= selectedStart);
+    // Day buttons
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const dateStr = date.toISOString().split('T')[0];
+      const isPast = date < today;
+      const isSelected = dateStr === selectedStart || dateStr === selectedEnd;
+      const isInRange = selectedStart && selectedEnd && dateStr > selectedStart && dateStr < selectedEnd;
+      const isDisabled = isPast || (selectingCheckOut && selectedStart && dateStr <= selectedStart);
 
-    days.push(
-      <button
-        key={day}
-        onClick={() => !isDisabled && onDateSelect(dateStr)}
-        disabled={isDisabled}
-        className={`w-full h-10 flex items-center justify-center rounded hover:bg-blue-100 transition
-          ${isSelected ? 'bg-blue-500 text-white font-bold' : ''}
-          ${isInRange ? 'bg-blue-100' : ''}
-          ${isDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 cursor-pointer'}
-        `}
-      >
-        {day}
-      </button>
-    );
-  }
+      days.push(
+        <button
+          key={day}
+          onClick={() => !isDisabled && onDateSelect(dateStr)}
+          disabled={isDisabled}
+          className={`w-full h-10 flex items-center justify-center rounded hover:bg-blue-100 transition
+            ${isSelected ? 'bg-blue-500 text-white font-bold' : ''}
+            ${isInRange ? 'bg-blue-100' : ''}
+            ${isDisabled ? 'text-gray-300 cursor-not-allowed' : 'text-gray-700 cursor-pointer'}
+          `}
+        >
+          {day}
+        </button>
+      );
+    }
 
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
 
-  return (
-    <div className="p-4">
-      <h3 className="font-bold text-lg mb-4 text-center">{monthNames[month]} {year}</h3>
+    return (
+      <div className="p-4">
+        <h3 className="font-bold text-lg mb-4 text-center">{monthNames[month]} {year}</h3>
 
-      {/* Weekday headers */}
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-          <div key={day} className="w-full h-10 flex items-center justify-center text-sm font-semibold text-gray-600">
-            {day}
-          </div>
-        ))}
+        {/* Weekday headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+            <div key={day} className="w-full h-10 flex items-center justify-center text-sm font-semibold text-gray-600">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Days grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {days}
+        </div>
       </div>
-
-      {/* Days grid */}
-      <div className="grid grid-cols-7 gap-1">
-        {days}
-      </div>
-    </div>
-  );
-};
-
+    );
+  };
 
   const handleDateSelect = (dateStr) => {
     if (!selectingCheckOut) {
@@ -238,73 +305,41 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
   const currentDate = new Date();
   const nextMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1);
 
-  const handleConfirmBooking = async () => {
-  try {
-    // Basic validation
-    if (
-      !selectedSuite ||
-      !reservation.checkIn ||
-      !reservation.checkOut ||
-      !guestDetails.firstName ||
-      !guestDetails.lastName ||
-      !guestDetails.email
-    ) {
-      alert("Please complete all required fields before confirming booking.");
+  const handleSaveDetails = async () => {
+    if (!guestDetails.firstName || !guestDetails.lastName || !guestDetails.email || !guestDetails.phone) {
+      alert('Please fill in all required fields');
       return;
     }
 
-    // Construct request payload
-    const payload = {
-      roomId: selectedSuite.id,
-      specialRequest: guestDetails.specialRequests || '',
-      checkInDate: reservation.checkIn,
-      checkOutDate: reservation.checkOut,
-      totalGuests: reservation.adults + reservation.children,
-    };
+    try {
+      // Prepare reservation data
+      const reservationData = {
+        roomId: selectedSuite,
+        checkInDate: reservation.checkIn,
+        checkOutDate: reservation.checkOut,
+        totalGuests: reservation.adults + reservation.children,
+        specialRequest: guestDetails.specialRequests || null
+      };
 
-    // Send request to backend
-    const response = await createReservation(payload);
+      // Make API call to create reservation
+      const response = await createReservation(reservationData);
 
-    if (response.data.success) {
-      setBookingConfirmed(true);
-      alert(`🎉 Booking Confirmed! Your reservation ID is ${response.data.data.id}`);
-    } else {
-      alert(response.data.message || "Booking failed. Please try again.");
+      if (response.data.success) {
+        setDetailsCompleted(true);
+        setShowDetailsForm(false);
+        alert(`✅ ${response.data.message}\nReservation ID: ${response.data.data.id}`);
+      }
+    } catch (error) {
+      console.error('Reservation error:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to create reservation. Please try again.';
+      alert(`❌ Error: ${errorMessage}`);
     }
-  } catch (error) {
-    console.error("Error confirming booking:", error);
-    if (error.response && error.response.data?.message) {
-      alert(`Booking failed: ${error.response.data.message}`);
-    } else {
-      alert("Booking failed. Please try again later.");
-    }
-  }
-};
-
+  };
 
   return (
     <>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white font-bold">
-                🏨
-              </div>
-              <span className="text-xl font-bold text-gray-800">Luxury Grand Hotel</span>
-            </div>
-            <nav className="hidden md:flex gap-8 text-gray-600">
-              <a href="#" className="hover:text-gray-900">Rooms</a>
-              <a href="#" className="hover:text-gray-900">Amenities</a>
-              <a href="#" className="hover:text-gray-900">Dining</a>
-              <a href="#" className="hover:text-gray-900">Gallery</a>
-            </nav>
-            <button className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
-              Sign In
-            </button>
-          </div>
-        </header>
 
         {/* Progress Steps */}
         <div className="bg-white border-b">
@@ -374,31 +409,30 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
 
                 {/* Calendar Popup */}
                 {showDatePicker && (
-  <div className="absolute top-full mt-2 left-0 bg-white shadow-2xl rounded-lg border border-gray-200 z-50">
-    <div className="p-4 border-b bg-blue-50">
-      <p className="text-sm font-semibold text-gray-700">
-        {!selectingCheckOut ? '📅 Select check-in date' : '📅 Select check-out date'}
-      </p>
-    </div>
-    <div className="grid grid-cols-2 divide-x">
-      <CalendarComponent
-        month={currentDate.getMonth()}
-        year={currentDate.getFullYear()}
-        onDateSelect={handleDateSelect}
-        selectedStart={reservation.checkIn}
-        selectedEnd={reservation.checkOut}
-      />
-      <CalendarComponent
-        month={nextMonth.getMonth()}
-        year={nextMonth.getFullYear()}
-        onDateSelect={handleDateSelect}
-        selectedStart={reservation.checkIn}
-        selectedEnd={reservation.checkOut}
-      />
-    </div>
-  </div>
-)}
-
+                  <div className="absolute top-full mt-2 left-0 bg-white shadow-2xl rounded-lg border border-gray-200 z-50">
+                    <div className="p-4 border-b bg-blue-50">
+                      <p className="text-sm font-semibold text-gray-700">
+                        {!selectingCheckOut ? '📅 Select check-in date' : '📅 Select check-out date'}
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 divide-x">
+                      <CalendarComponent
+                        month={currentDate.getMonth()}
+                        year={currentDate.getFullYear()}
+                        onDateSelect={handleDateSelect}
+                        selectedStart={reservation.checkIn}
+                        selectedEnd={reservation.checkOut}
+                      />
+                      <CalendarComponent
+                        month={nextMonth.getMonth()}
+                        year={nextMonth.getFullYear()}
+                        onDateSelect={handleDateSelect}
+                        selectedStart={reservation.checkIn}
+                        selectedEnd={reservation.checkOut}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Guests Selector */}
@@ -451,21 +485,48 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
             <div className="flex-1">
               {/* Filters */}
               <div className="flex gap-4 mb-6 flex-wrap">
-                <button className="bg-blue-500 text-white px-6 py-2 rounded-lg font-medium">
-                  All Rooms
-                </button>
-                <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-                  Suites <ChevronDown className="w-4 h-4" />
-                </button>
-                <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-                  Deluxe <ChevronDown className="w-4 h-4" />
-                </button>
-                <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-                  Ocean View <ChevronDown className="w-4 h-4" />
-                </button>
-                <button className="bg-white border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-50 flex items-center gap-2">
-                  Price Range <ChevronDown className="w-4 h-4" />
-                </button>
+                <select
+                  value={filters.roomType}
+                  onChange={(e) =>
+                    setFilters(prev => ({ ...prev, roomType: e.target.value }))
+                  }
+                  className="bg-white border border-gray-300 px-6 py-2 rounded-lg"
+                >
+                  <option value="All">All Rooms</option>
+                  {roomTypes.map(rt => (
+                    <option key={rt.id} value={rt.name}>
+                      {rt.name}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={filters.viewType}
+                  onChange={(e) =>
+                    setFilters(prev => ({ ...prev, viewType: e.target.value }))
+                  }
+                  className="bg-white border border-gray-300 px-6 py-2 rounded-lg"
+                >
+                  <option value="All">All Views</option>
+                  {views.map(view => (
+                    <option key={view} value={view}>
+                      {view}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={filters.priceRange}
+                  onChange={(e) =>
+                    setFilters(prev => ({ ...prev, priceRange: e.target.value }))
+                  }
+                  className="bg-white border border-gray-300 px-6 py-2 rounded-lg"
+                >
+                  <option value="All">All Prices</option>
+                  <option value="0-150">Under $150</option>
+                  <option value="150-300">$150 – $300</option>
+                  <option value="300+">$300+</option>
+                </select>
               </div>
 
               {/* Room Cards */}
@@ -485,12 +546,12 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
                       Retry
                     </button>
                   </div>
-                ) : rooms.length === 0 ? (
+                ) : filteredRooms.length === 0 ? (
                   <div className="text-center py-12">
-                    <p className="text-gray-600">No rooms available at the moment.</p>
+                    <p className="text-gray-600">No rooms match your filters. Try adjusting your search.</p>
                   </div>
                 ) : (
-                  rooms.map((room) => (
+                  filteredRooms.map((room) => (
                     <div key={room.id} className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition">
                       <div className="flex flex-col md:flex-row">
                         {/* Room Image */}
@@ -526,14 +587,27 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
                             </div>
 
                             {/* Features */}
-                            <ul className="space-y-2 mb-4">
-                              {room.features.map((feature, idx) => (
-                                <li key={idx} className="flex items-start gap-2 text-gray-700">
-                                  <span className="text-green-500 mt-1">✓</span>
-                                  <span>{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
+<ul className="grid grid-cols-2 gap-x-6 gap-y-2 mb-4">
+  {getAmenitiesList(room.amenities).length === 0 ? (
+    <li className="col-span-2 text-gray-500 italic">
+      No amenities listed
+    </li>
+  ) : (
+    getAmenitiesList(room.amenities).map((amenity, idx) => (
+      <li
+  key={idx}
+  className="flex items-center gap-2 text-sm text-gray-600"
+>
+  <span className="text-blue-500">•</span>
+  <span>{amenity}</span>
+</li>
+
+    ))
+  )}
+</ul>
+
+
+
                           </div>
 
                           {/* Price and Button */}
@@ -629,27 +703,23 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
                 </div>
 
                 {/* Confirm Button */}
-<button
-  disabled={!selectedSuite || !reservation.checkIn || !reservation.checkOut}
-  onClick={() => {
-    // Step 2: Show guest details form
-    if (!detailsCompleted) {
-      setShowDetailsForm(true);
-    } 
-    // Step 3: Confirm booking
-    else if (detailsCompleted) {
-      handleConfirmBooking();
-    }
-  }}
-  className={`w-full py-3 rounded-lg font-semibold transition ${
-    selectedSuite && reservation.checkIn && reservation.checkOut
-      ? 'bg-blue-500 text-white hover:bg-blue-600'
-      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-  }`}
->
-  {!detailsCompleted ? 'Enter Your Details' : 'Confirm Booking'}
-</button>
-
+                <button
+                  disabled={!selectedSuite || !reservation.checkIn || !reservation.checkOut}
+                  onClick={() => {
+                    if (!detailsCompleted) {
+                      setShowDetailsForm(true);
+                    } else if (detailsCompleted && !bookingConfirmed) {
+                      setBookingConfirmed(true);
+                      alert('🎉 Your booking has been confirmed!');
+                    }
+                  }}
+                  className={`w-full py-3 rounded-lg font-semibold transition ${selectedSuite && reservation.checkIn && reservation.checkOut
+                    ? 'bg-blue-500 text-white hover:bg-blue-600'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                >
+                  {!detailsCompleted ? 'Enter Your Details' : bookingConfirmed ? 'Booking Confirmed ✓' : 'Confirm Booking'}
+                </button>
 
                 <p className="text-xs text-gray-500 text-center mt-3">
                   Free cancellation until 48h before check-in
@@ -702,7 +772,7 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
                     <p><strong>Room:</strong> {rooms.find(r => r.id === selectedSuite)?.name}</p>
                     <p><strong>Dates:</strong> {formatDate(reservation.checkIn)} - {formatDate(reservation.checkOut)} ({calculateNights()} nights)</p>
                     <p><strong>Guests:</strong> {reservation.adults} Adults, {reservation.children} Children</p>
-                    <p><strong className="text-blue-600 text-lg">Total: ${calculateTotal()}</strong></p>
+                    <p><strong className="text-blue-600 text-lg">Total: ${calculateTotal().toFixed(2)}</strong></p>
                   </div>
                 </div>
 
@@ -798,36 +868,7 @@ const CalendarComponent = ({ month, year, onDateSelect, selectedStart, selectedE
                   Go Back
                 </button>
                 <button
-                  onClick={async () => {
-                    if (!guestDetails.firstName || !guestDetails.lastName || !guestDetails.email || !guestDetails.phone) {
-                      alert('Please fill in all required fields');
-                      return;
-                    }
-
-                    try {
-                      // Prepare reservation data
-                      const reservationData = {
-                        roomId: selectedSuite,
-                        checkInDate: reservation.checkIn,
-                        checkOutDate: reservation.checkOut,
-                        totalGuests: reservation.adults + reservation.children,
-                        specialRequest: guestDetails.specialRequests || null
-                      };
-
-                      // Make API call to create reservation
-                      const response = await createReservation(reservationData);
-
-                      if (response.data.success) {
-                        setDetailsCompleted(true);
-                        setShowDetailsForm(false);
-                        alert(`✅ ${response.data.message}\nReservation ID: ${response.data.data.id}`);
-                      }
-                    } catch (error) {
-                      console.error('Reservation error:', error);
-                      const errorMessage = error.response?.data?.message || 'Failed to create reservation. Please try again.';
-                      alert(`❌ Error: ${errorMessage}`);
-                    }
-                  }}
+                  onClick={handleSaveDetails}
                   className="px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition"
                 >
                   Save & Continue
