@@ -3,7 +3,7 @@ import { Lock, Mail } from 'lucide-react';
 import image from '../assets/background.png';
 import { toast } from 'react-hot-toast';
 import { login } from '../services/api';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 
 export default function HotelLogin() {
@@ -41,9 +41,9 @@ export default function HotelLogin() {
     return false;
   };
 
-  const handleSubmit = async() => {
+  const handleSubmit = async () => {
     try {
-      if(validators()){
+      if (validators()) {
         const dataToSubmit = {
           email,
           password
@@ -54,13 +54,13 @@ export default function HotelLogin() {
           localStorage.setItem("token", response?.data?.token)
 
           let decoded;
-            try {
-              decoded = jwtDecode(response?.data?.token);
-            } catch (error) {
-              return toast.error("Invalid token")
-            }
+          try {
+            decoded = jwtDecode(response?.data?.token);
+          } catch (error) {
+            return toast.error("Invalid token")
+          }
 
-            navigate(decoded.role === 'admin' ? '/rooms' : '/');
+          navigate(decoded.role === 'admin' ? '/rooms' : '/');
         } else {
           return toast.error(response?.data?.message || "Login Failed! Please try again.");
         }
@@ -75,23 +75,23 @@ export default function HotelLogin() {
     <div className="min-h-screen flex">
       {/* Left Side - Hero Section */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-black">
-                <img 
-            src={image}
-            alt="Luxury Hotel Lobby"
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
+        <img
+          src={image}
+          alt="Luxury Hotel Lobby"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
         <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent" />
-        
+
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           <div>
             <h2 className="text-white text-sm font-semibold tracking-widest mb-8">LUXE STAY</h2>
-            
+
             <div className="mt-16">
               <h1 className="text-white text-5xl font-bold leading-tight mb-6">
                 Elevate Your<br />
                 <span className="text-amber-400">Hospitality Experience</span>
               </h1>
-              
+
               <p className="text-gray-300 text-lg max-w-md leading-relaxed">
                 Streamline operations, enhance guest satisfaction, and drive revenue with our premium hotel management platform.
               </p>
@@ -145,9 +145,8 @@ export default function HotelLogin() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className={`w-full pl-10 pr-4 py-3 border ${
-                      errors.email ? 'border-red-500' : 'border-gray-300'
-                    } rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition`}
+                    className={`w-full pl-10 pr-4 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'
+                      } rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition`}
                   />
                 </div>
                 {errors.email && (
@@ -169,9 +168,8 @@ export default function HotelLogin() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••"
-                    className={`w-full pl-10 pr-4 py-3 border ${
-                      errors.password ? 'border-red-500' : 'border-gray-300'
-                    } rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition`}
+                    className={`w-full pl-10 pr-4 py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'
+                      } rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition`}
                   />
                 </div>
                 {errors.password && (
@@ -192,7 +190,7 @@ export default function HotelLogin() {
 
               {/* Sign In Button */}
               <button
-                onClick={()=>{handleSubmit()}}
+                onClick={() => { handleSubmit() }}
                 className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-lg transition duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
                 Sign In

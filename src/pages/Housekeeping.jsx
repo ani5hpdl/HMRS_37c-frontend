@@ -50,20 +50,20 @@ const HousekeepingDashboard = () => {
   };
 
   const handleStatusChange = (roomId, newStatus) => {
-    setRooms(rooms.map(room => 
+    setRooms(rooms.map(room =>
       room.id === roomId ? { ...room, status: newStatus } : room
     ));
   };
 
   const handlePriorityChange = (roomId, newPriority) => {
-    setRooms(rooms.map(room => 
+    setRooms(rooms.map(room =>
       room.id === roomId ? { ...room, priority: newPriority } : room
     ));
   };
 
   const handleSelectRoom = (roomId) => {
-    setSelectedRooms(prev => 
-      prev.includes(roomId) 
+    setSelectedRooms(prev =>
+      prev.includes(roomId)
         ? prev.filter(id => id !== roomId)
         : [...prev, roomId]
     );
@@ -79,11 +79,11 @@ const HousekeepingDashboard = () => {
 
   const filteredRooms = rooms.filter(room => {
     const matchesSearch = room.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          room.type.toLowerCase().includes(searchTerm.toLowerCase());
+      room.type.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRoomType = filters.roomType === 'All Rooms' || room.type === filters.roomType;
     const matchesStatus = filters.status === 'All Status' || room.status === filters.status;
     const matchesPriority = filters.priority === 'All Priority' || room.priority === filters.priority;
-    
+
     return matchesSearch && matchesRoomType && matchesStatus && matchesPriority;
   });
 
@@ -118,23 +118,8 @@ const HousekeepingDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <NavBar/>
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        {/* Header */}
-        <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Housekeeping</h1>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <img src="/api/placeholder/32/32" alt="User" className="w-8 h-8 rounded-full" />
-              <span className="font-medium">Jaydon Donovan</span>
-            </div>
-            <Settings className="text-gray-600 cursor-pointer" size={20} />
-            <Bell className="text-red-500 cursor-pointer" size={20} />
-          </div>
-        </div>
 
         {/* Filters and Search */}
         <div className="bg-white border-b border-gray-200 px-6 py-4">
@@ -149,10 +134,10 @@ const HousekeepingDashboard = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-400"
               />
             </div>
-            
+
             <select
               value={filters.roomType}
-              onChange={(e) => setFilters({...filters, roomType: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, roomType: e.target.value })}
               className="px-4 py-2 border border-gray-300 rounded-lg bg-lime-100 text-gray-900 font-medium cursor-pointer focus:outline-none"
             >
               <option value="All Rooms">All Rooms</option>
@@ -163,7 +148,7 @@ const HousekeepingDashboard = () => {
 
             <select
               value={filters.status}
-              onChange={(e) => setFilters({...filters, status: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
               className="px-4 py-2 border border-gray-300 rounded-lg bg-lime-100 text-gray-900 font-medium cursor-pointer focus:outline-none"
             >
               <option value="All Status">All Status</option>
@@ -175,7 +160,7 @@ const HousekeepingDashboard = () => {
 
             <select
               value={filters.priority}
-              onChange={(e) => setFilters({...filters, priority: e.target.value})}
+              onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
               className="px-4 py-2 border border-gray-300 rounded-lg bg-lime-100 text-gray-900 font-medium cursor-pointer focus:outline-none"
             >
               <option value="All Priority">All Priority</option>
@@ -269,7 +254,7 @@ const HousekeepingDashboard = () => {
               <div className="text-sm text-gray-700">
                 Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredRooms.length)} of {filteredRooms.length}
               </div>
-              
+
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -278,21 +263,20 @@ const HousekeepingDashboard = () => {
                 >
                   <ChevronLeft size={18} />
                 </button>
-                
+
                 {[...Array(totalPages)].map((_, i) => (
                   <button
                     key={i + 1}
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`px-3 py-1 rounded ${
-                      currentPage === i + 1
+                    className={`px-3 py-1 rounded ${currentPage === i + 1
                         ? 'bg-lime-400 text-gray-900 font-medium'
                         : 'hover:bg-gray-200 text-gray-700'
-                    }`}
+                      }`}
                   >
                     {i + 1}
                   </button>
                 ))}
-                
+
                 <button
                   onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                   disabled={currentPage === totalPages}
