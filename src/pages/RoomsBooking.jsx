@@ -3,6 +3,7 @@ import { ChevronDown, Calendar as CalendarIcon, Users } from 'lucide-react';
 
 // REPLACE THESE WITH YOUR ACTUAL API IMPORTS
 import { createReservation, getRooms, getRoomTypes } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const RoomSelector = () => {
   const [selectedSuite, setSelectedSuite] = useState(null);
@@ -12,6 +13,7 @@ const RoomSelector = () => {
   const [detailsCompleted, setDetailsCompleted] = useState(false);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [showDetailsForm, setShowDetailsForm] = useState(false);
+  const [reservationData, setReservationData] = useState(null);
   const [guestDetails, setGuestDetails] = useState({
     firstName: '',
     lastName: '',
@@ -31,6 +33,8 @@ const RoomSelector = () => {
   const [error, setError] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]);
   const [views, setViews] = useState([]);
+
+  const navigate = useNavigate();
 
   // Helper function to extract features from room amenities
   // const getFeaturesList = (roomType) => {
@@ -324,22 +328,38 @@ const RoomSelector = () => {
         specialRequest: guestDetails.specialRequests || null
       };
 
-      console.log(reservationData)
+      setReservationData(reservationData);
 
       // Make API call to create reservation
-      const response = await createReservation(reservationData);
+      // const response = await createReservation(reservationData);
 
-      if (response.data.success) {
+      // if (response.data.success) {
         setDetailsCompleted(true);
         setShowDetailsForm(false);
-        alert(`✅ ${response.data.message}\nReservation ID: ${response.data.data.id}`);
-      }
+      //   alert(`✅ ${response.data.message}\nReservation ID: ${response.data.data.id}`);
+      // }
     } catch (error) {
       console.error('Reservation error:', error);
       const errorMessage = error.response?.data?.message || 'Failed to create reservation. Please try again.';
       alert(`❌ Error: ${errorMessage}`);
     }
   };
+
+const handleBookingSubmit = async () => {
+    try {
+        const data = await createReservation(reservationData);
+        console.log(data);
+
+        if (data.data.success) {
+            // Navigate to payment page
+            navigate(`/payment?reservationId=${data.data.data.id}&amount=${data.data.data.totalPrice}`);
+        } else {
+            alert(data.message);
+        }
+    } catch (error) {
+        alert('Booking failed: ' + error.message);
+    }
+};
 
   return (
     <>
@@ -715,6 +735,7 @@ const RoomSelector = () => {
                       setShowDetailsForm(true);
                     } else if (detailsCompleted && !bookingConfirmed) {
                       setBookingConfirmed(true);
+                      handleBookingSubmit();
                       alert('🎉 Your booking has been confirmed!');
                     }
                   }}

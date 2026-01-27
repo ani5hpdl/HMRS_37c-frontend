@@ -31,6 +31,10 @@ import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import Amenities from "./pages/Amenities";
 import ForgotPassword from "./pages/Forgotpassword";
+import PaymentPage from "./pages/PaymentPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
+// import CheckoutPage from "./pages/CheckoutPage";
 // import Profile from "./pages/Profile";
 
 /* ---------- Shared ---------- */
@@ -356,6 +360,9 @@ function App() {
           }
         />
 
+                        <Route path="/payment" element={<PaymentPage />} />
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-cancel" element={<PaymentCancel />} />
         {/* ---------- 404 ---------- */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

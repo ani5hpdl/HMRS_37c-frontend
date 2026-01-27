@@ -81,3 +81,7 @@ export const createUser = (data) => Api.post('/api/admin/createUser',data,config
 export const updateUser = (id,data) => Api.put(`/api/admin/updateUserById/${id}`,data,config);
 
 export const deleteUser = (id) => Api.delete(`/api/admin/deleteUser/${id}`,config);
+
+export const verifyPayments = (sessionId) => Api.get(`/api/payments/stripe/verify-payment?session_id=${sessionId}`,config);
+
+export const createStripeCheckout = (data) => Api.post('/api/payments/stripe/create-checkout',data,config);
