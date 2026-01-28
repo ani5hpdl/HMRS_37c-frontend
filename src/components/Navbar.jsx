@@ -14,6 +14,7 @@ import {
 import logo from "../assets/images/Luxe-logo.png";
 import BookNowButton from "../components/BookNowButton.jsx";
 import { motion, AnimatePresence } from "framer-motion";
+import { getMyProfile } from "../services/api.js";
 
 const NAV_LINKS = [
   { label: "Home", to: "/" },
@@ -81,13 +82,19 @@ const Navbar = () => {
   const searchInputRef = useRef(null);
 
   // Replace with AuthContext if available
-  const user = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("user"));
-    } catch {
-      return null;
+
+  const [user,setUser] = useState([]);
+  const userMe = async() => {
+    const response = await getMyProfile();
+    console.log(response.data.data);
+    if(response.data.success){
+       setUser(response.data.data);
     }
-  })();
+  }
+
+  useEffect(()=>{
+    userMe();
+  },[])
 
   // Hide navbar on scroll (keeps the prior behavior)
   useEffect(() => {
@@ -238,7 +245,7 @@ const Navbar = () => {
               </div>
 
               {/* Auth / profile */}
-              {user ? (
+              {user?.isActive ? (
                 <div className="relative" ref={profileRef}>
                   <button
                     onClick={() => setShowProfileMenu((s) => !s)}
@@ -248,10 +255,10 @@ const Navbar = () => {
                     aria-controls="profile-menu"
                   >
                     <div className="w-9 h-9 rounded-full bg-amber-500 text-white flex items-center justify-center font-semibold">
-                      {user.firstName?.charAt(0) || "U"}
+                      {user?.name?.charAt(0) || "U"}
                     </div>
                     <span className={`hidden sm:block text-sm font-medium ${navbarTheme === "dark" ? "text-gray-100" : "text-gray-800"}`}>
-                      {user.firstName}
+                      {user?.name}
                     </span>
                   </button>
 
@@ -269,7 +276,7 @@ const Navbar = () => {
                         aria-label="User menu"
                       >
                         <div className="px-4 py-3 border-b">
-                          <p className="text-sm font-semibold">{user.firstName} {user.lastName}</p>
+                          <p className="text-sm font-semibold">{user.name}</p>
                           <p className="text-xs text-gray-500">{user.email}</p>
                         </div>
 
@@ -277,7 +284,7 @@ const Navbar = () => {
                           <li>
                             <Link
                               to="/my-bookings"
-                              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50"
+                              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 hover:text-black"
                             >
                               <Calendar size={16} /> My Bookings
                             </Link>
@@ -285,7 +292,7 @@ const Navbar = () => {
                           <li>
                             <Link
                               to="/profile"
-                              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50"
+                              className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 hover:text-black"
                             >
                               <Settings size={16} /> Profile Settings
                             </Link>
