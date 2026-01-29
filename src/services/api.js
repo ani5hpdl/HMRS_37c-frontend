@@ -26,6 +26,10 @@ export const login = (data) => Api.post('/api/user/login',data);
 
 export const register = (data) => Api.post('/api/user/register',data);
 
+export const sendResetLink = (data) => Api.post('/api/user/forgetPassword',data);
+
+export const changePassword = (data) => Api.put(`/api/user/resetpassword?token=${data.token}&email=${data.email}`,data);
+
 export const getMyProfile = () => Api.get('/api/user/me',config);
 
 export const getRooms = () => Api.get('/api/rooms/getAllRooms',config);

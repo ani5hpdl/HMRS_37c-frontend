@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from 'lucide-react';
 import bgImage from "../assets/images/Background.jpg";
-import { resetPasswordApi, verifyResetTokenApi } from '../apis/api';
+import { changePassword } from '../services/api';
+// import { resetPasswordApi, verifyResetTokenApi } from '../apis/api';
 
 export default function ResetPassword() {
-  const { token } = useParams();
+  const [searchParams] = useSearchParams();
+
+  const token = searchParams.get("token");
+  const email = searchParams.get("email");
   const navigate = useNavigate();
   
   const [password, setPassword] = useState('');
@@ -16,26 +20,20 @@ export default function ResetPassword() {
   const [verifying, setVerifying] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [tokenValid, setTokenValid] = useState(false);
+  const [tokenValid, setTokenValid] = useState(true);
 
   // Verify token on component mount
   useEffect(() => {
     const verifyToken = async () => {
-      try {
-        const response = await verifyResetTokenApi(token);
-        if (response.data.success) {
-          setTokenValid(true);
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Invalid or expired reset link');
+      if(!token || !email){
         setTokenValid(false);
-      } finally {
+      }else{
         setVerifying(false);
       }
     };
 
     verifyToken();
-  }, [token]);
+  }, [token,email]);
 
   const handleSubmit = async () => {
     if (!password || !confirmPassword) {
@@ -57,10 +55,7 @@ export default function ResetPassword() {
     setError('');
 
     try {
-      const response = await resetPasswordApi(token, { 
-        password, 
-        confirmPassword 
-      });
+      const response = await changePassword({ email, token, password, confirmPassword });
 
       if (response.data.success) {
         setSuccess(true);
@@ -231,7 +226,7 @@ export default function ResetPassword() {
                   </div>
 
                   <button
-                    onClick={handleSubmit}
+                    onClick={()=>{handleSubmit()}}
                     disabled={loading}
                     className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-md disabled:bg-amber-300 disabled:cursor-not-allowed"
                   >

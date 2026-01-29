@@ -40,6 +40,8 @@ import PaymentCancel from "./pages/PaymentCancel";
 /* ---------- Shared ---------- */
 import NotFoundPage from "./pages/Error";
 import UserRooms from "./pages/UserRooms";
+import MyBookings from "./pages/MyBookings";
+import ResetPassword from "./pages/ResetPassword";
 
 /* ---------- Admin Layout ---------- */
 const AdminLayout = ({ header, children }) => {
@@ -79,6 +81,9 @@ function App() {
       <Routes>
         {/* ---------- Auth ---------- */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forget-password" element={<ForgotPassword />} />
+        <Route path="/resetpassword" element={<ResetPassword />} />
 
         {/* ---------- User Routes ---------- */}
         <Route
@@ -86,15 +91,6 @@ function App() {
           element={
             <UserLayout>
               <Home />
-            </UserLayout>
-          }
-        />
-
-        <Route
-          path="/register"
-          element={
-            <UserLayout>
-              <Register />
             </UserLayout>
           }
         />
@@ -145,22 +141,13 @@ function App() {
         />
 
         <Route
-          path="/forgotpassword"
+          path="/my-bookings"
           element={
             <UserLayout>
-              <ForgotPassword />
+              <MyBookings />
             </UserLayout>
           }
         />
-
-        {/* <Route
-          path="/profile"
-          element={
-            <UserLayout>
-              <Profile />
-            </UserLayout>
-          }
-        /> */}
 
         {/* ---------- Admin Routes ---------- */}
         <Route
@@ -360,9 +347,9 @@ function App() {
           }
         />
 
-                        <Route path="/payment" element={<PaymentPage />} />
-                <Route path="/payment-success" element={<PaymentSuccess />} />
-                <Route path="/payment-cancel" element={<PaymentCancel />} />
+        <Route path="/payment" element={<PaymentPage />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-cancel" element={<PaymentCancel />} />
         {/* ---------- 404 ---------- */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
